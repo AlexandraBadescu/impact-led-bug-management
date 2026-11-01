@@ -1,0 +1,17 @@
+{
+  "title": "A draft containing personal data",
+  "kind": "draft-check",
+  "expect": {
+    "checkerCodes": [
+      {
+        "code": "privacy-email"
+      },
+      {
+        "code": "privacy-phone"
+      }
+    ]
+  },
+  "rubric": [
+    "The checker only catches patterns. A person also checks for names, addresses, order numbers tied to a person and screenshots"
+  ]
+}

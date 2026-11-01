@@ -1,0 +1,23 @@
+{
+  "name": "impact-led-bug-management",
+  "version": "1.2.0",
+  "description": "Impact-led bug management: playbook, scoring guide, Jira setup and a demo dashboard with fictional data.",
+  "private": true,
+  "scripts": {
+    "test": "node --test tests/*.test.js",
+    "data": "node dashboard/generate-data.js",
+    "check:draft": "node tools/check-bug-draft.js",
+    "validate": "node tools/validate-data.js",
+    "eval": "node tools/eval-bug-drafts.js",
+    "preview": "node tools/build-preview.js"
+  },
+  "devDependencies": {
+    "axe-core": "4.10.2",
+    "playwright": "1.63.0"
+  },
+  "license": "SEE LICENSE IN LICENSE",
+  "author": "Alexandra Badescu",
+  "engines": {
+    "node": ">=20"
+  }
+}

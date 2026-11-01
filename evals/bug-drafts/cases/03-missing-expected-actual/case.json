@@ -1,0 +1,19 @@
+{
+  "title": "A draft with no expected or actual result",
+  "kind": "draft-check",
+  "expect": {
+    "checkerCodes": [
+      {
+        "code": "section-missing",
+        "contains": "Expected"
+      },
+      {
+        "code": "section-missing",
+        "contains": "Actual"
+      }
+    ]
+  },
+  "rubric": [
+    "A person can't tell what 'wrong' means without Expected and Actual, so it goes back to the drafter"
+  ]
+}

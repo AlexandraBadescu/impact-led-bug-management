@@ -1,0 +1,15 @@
+{
+  "title": "An impact claim the evidence doesn't support",
+  "kind": "draft-check",
+  "expect": {
+    "checkerCodes": [
+      {
+        "code": "impact-mismatch",
+        "contains": "not Very high"
+      }
+    ]
+  },
+  "rubric": [
+    "'Could affect everyone' isn't evidence: the reach must come from analytics, support volume or logs, or say it's unknown under Not confirmed"
+  ]
+}

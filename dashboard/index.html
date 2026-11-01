@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bug Decisions: demo dashboard</title>
+<meta name="description" content="A demo dashboard for impact-led bug management, with fictional data. Part of a QA portfolio by Alexandra Badescu.">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="color-scheme" content="light dark">
+<meta property="og:title" content="Bug Decisions: demo dashboard">
+<meta property="og:description" content="Impact-led bug management with fictional data. A QA portfolio project by Alexandra Badescu.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232b1a2e'/%3E%3Ccircle cx='16' cy='17' r='7' fill='%23f2a7c6'/%3E%3Cpath d='M16 10v14M9 17h14' stroke='%232b1a2e' stroke-width='2'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div class="layout">
+  <aside class="side" aria-label="Dashboard views">
+    <p class="brand">Bug <span>Decisions</span></p>
+    <p class="tagline">Every bug has a next step</p>
+    <nav>
+      <ul class="nav">
+        <li><a href="#today">Today<small>For the team, daily</small></a></li>
+        <li><a href="#week">This week<small>For the weekly bug review</small></a></li>
+        <li><a href="#month">This month<small>For product and leadership</small></a></li>
+        <li><a href="#how">How it works<small>Scoring, rules, terms</small></a></li>
+      </ul>
+    </nav>
+    <div class="note"><strong>Fictional data</strong>59 made-up bugs for MaxQ Ltd, a fictional platform with three products: an online shop, its own payments service and an identity-check service. It deliberately includes overdue work and missing decisions, to show how the dashboard exposes them. No real company, customer or ticket.</div>
+    <p class="byline">Alexandra Badescu<br>Bug management portfolio<br><a href="https://github.com/AlexandraBadescu/impact-led-bug-management">Read the playbook</a></p>
+  </aside>
+
+  <main id="main" tabindex="-1">
+    <p class="eyebrow" id="eyebrow"></p>
+    <h1 id="title"></h1>
+    <p class="lead" id="lead"></p>
+    <ul class="who" id="who" aria-label="Who this view is for"></ul>
+
+    <form class="filters" id="filters" aria-label="Filters">
+      <label>As of <input type="date" id="asof"></label>
+      <label>Team <select id="team"><option value="">All teams</option></select></label>
+      <label>Impact <select id="impact"><option value="">All levels</option><option>Very high</option><option>High</option><option>Medium</option><option>Low</option><option>Unknown</option></select></label>
+      <span class="spacer"></span>
+      <button type="button" class="btn" id="export">Download CSV</button>
+    </form>
+
+    <div id="view" aria-live="polite"></div>
+
+    <footer>
+      Fictional demo of a comprehensive strategy; simplify it to fit your team's way of working and processes. Thresholds are examples from the playbook, not promises. Weighted exposure ranks open bugs by impact level; it isn't a measure of money, customers or quality on its own.
+      Dates are calendar days. No tracking, cookies or network requests.<br>
+      © 2026 Alexandra Badescu. Licensed under CC BY-NC-ND 4.0.
+    </footer>
+  </main>
+</div>
+
+<dialog id="dlg" aria-labelledby="dlg-title">
+  <div class="dlg-head">
+    <h2 id="dlg-title"></h2>
+    <button type="button" id="dlg-close">Close</button>
+  </div>
+  <div class="dlg-body" id="dlg-body"></div>
+</dialog>
+
+<script src="data.js"></script>
+<script src="metrics.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

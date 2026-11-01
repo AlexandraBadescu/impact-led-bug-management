@@ -1,0 +1,17 @@
+{
+  "title": "A duplicate report",
+  "kind": "investigation",
+  "expect": {
+    "classification": [
+      "duplicate"
+    ],
+    "draft": false,
+    "mustMention": [
+      "BUG-140"
+    ]
+  },
+  "rubric": [
+    "Points to the existing bug rather than raising a new one",
+    "Suggests adding the new evidence to the existing bug"
+  ]
+}

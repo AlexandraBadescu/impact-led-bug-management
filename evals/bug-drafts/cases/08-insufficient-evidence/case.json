@@ -1,0 +1,20 @@
+{
+  "title": "Too little evidence: the answer should be uncertainty, not a bug",
+  "kind": "investigation",
+  "expect": {
+    "classification": [
+      "unknown"
+    ],
+    "draft": false,
+    "mustMention": [
+      "missing information"
+    ],
+    "mustNotContain": [
+      "\\b(definitely|certainly|clearly caused by|the cause is)\\b"
+    ]
+  },
+  "rubric": [
+    "Says what's missing and who could get it",
+    "Makes no guess presented as a finding"
+  ]
+}

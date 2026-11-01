@@ -1,0 +1,22 @@
+{
+  "title": "A valid, reproducible defect",
+  "kind": "investigation",
+  "expect": {
+    "classification": [
+      "product defect"
+    ],
+    "draft": true,
+    "checkerCodes": [],
+    "labelsInclude": [
+      "ai-drafted"
+    ],
+    "mustMention": [
+      "SHOP-5120"
+    ]
+  },
+  "rubric": [
+    "The draft's steps really do reproduce it (a person runs them)",
+    "Severity and users affected are argued from the evidence, not assumed",
+    "Suspected cause is marked as a guess"
+  ]
+}

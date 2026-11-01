@@ -1,0 +1,32 @@
+# © 2026 Alexandra Badescu. Licensed under CC BY-NC-ND 4.0 (see LICENSE).
+# Runs every test: the calculations, the data checks, the dashboard in real browsers (layout, automated
+# axe-core WCAG A and AA rules, keyboard use) and the docs (links, licence, privacy).
+name: tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  tests:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium webkit firefox
+
+      - name: Run all tests (Chromium, plus WebKit for Safari and Firefox)
+        run: npm test
+        env:
+          REQUIRE_WEBKIT: '1'
+          REQUIRE_FIREFOX: '1'

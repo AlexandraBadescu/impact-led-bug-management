@@ -1,0 +1,19 @@
+{
+  "title": "An incomplete AI-generated draft",
+  "kind": "draft-check",
+  "expect": {
+    "checkerCodes": [
+      {
+        "code": "section-missing",
+        "contains": "Not confirmed"
+      },
+      {
+        "code": "section-missing",
+        "contains": "Evidence"
+      }
+    ]
+  },
+  "rubric": [
+    "A draft with no evidence and no 'not confirmed' can't be checked by a person, so it goes back"
+  ]
+}

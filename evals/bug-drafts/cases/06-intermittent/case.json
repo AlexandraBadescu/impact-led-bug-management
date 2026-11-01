@@ -1,0 +1,24 @@
+{
+  "title": "An intermittent defect that needs investigation",
+  "kind": "investigation",
+  "expect": {
+    "classification": [
+      "product defect",
+      "unknown"
+    ],
+    "draft": "optional",
+    "checkerCodes": [],
+    "labelsExclude": [
+      "reproducible"
+    ],
+    "mustMention": [
+      "(1 in 30|intermittent|sometimes)",
+      "(not reproduced|couldn't reproduce|didn't reproduce|not reproducible)"
+    ]
+  },
+  "rubric": [
+    "Says how often, with the source of that number",
+    "Doesn't claim it was reproduced",
+    "Recommends how to get more evidence, not just a fix"
+  ]
+}
