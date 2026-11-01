@@ -24,7 +24,7 @@ The demo is fictional, so it shows how the approach works, not that an organisat
 
 ## Where to go next
 
-- **Short on time:** the [demo dashboard](dashboard/index.html), then the [test report](docs/test-report.md).
+- **Short on time:** the [demo dashboard](https://alexandrabadescu.github.io/impact-led-bug-management/dashboard/), then the [test report](docs/test-report.md).
 - **Thinking of trying it:** the [minimum version](docs/minimum-viable-approach.md), then the [rollout plan](docs/rollout-plan.md).
 - **Product, engineering or QA:** [how each role works with it](docs/role-guides.md), the [playbook](docs/playbook.md), the [scoring guide](docs/scoring-guide.md), the [dashboard guide](docs/dashboard-guide.md) and the [Jira setup](docs/jira-setup.md).
 - **Code and evidence:** the dashboard and its calculations in [`dashboard/`](dashboard), the data and draft checkers in [`tools/`](tools), the [AI skills](skills/README.md) and their [known-answer cases](evals/bug-drafts/README.md), and [`tests/`](tests).

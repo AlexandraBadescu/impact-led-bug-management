@@ -122,6 +122,7 @@ test('tone: no overclaiming, and no stock opening repeated across the docs', () 
   assert.doesNotMatch(all, /ready-to-run/i, 'the Jira setup is documented, not installed');
   assert.doesNotMatch(all, /\*\*In plain words:\*\*/);
   assert.doesNotMatch(all, /Impact = severity ×/, 'impact is a matrix lookup, not a multiplication');
+  assert.doesNotMatch(all, /AUTHOR FOLLOW-UP|\bTODO\b|\bTBD\b/, 'no working notes in published docs, hidden or not');
 });
 
 const crypto = require('crypto');

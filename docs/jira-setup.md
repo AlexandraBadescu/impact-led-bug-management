@@ -167,7 +167,7 @@ These are the gaps the export above would fill.
 
 - **Weighted exposure** (sum of 8, 4, 2, 1): Jira gadgets count issues but can't sum a mapped weight. Export the "Open bugs" filter weekly (or use a small script against the API) and keep the weekly totals. The goal scorecard needs the same.
 - **Time to fix or mitigate, against target:** needs the export too, because it uses the earlier of Mitigated date and Resolved.
-- **History "as of" a past date:** Jira's change history has it, but rebuilding past states needs a script. The [demo dashboard](../dashboard/index.html) shows how: it stores each bug's events and rebuilds its state for any date, and shows figures from outside Jira (like the monthly share of work) only from the day they were reported.
+- **History "as of" a past date:** Jira's change history has it, but rebuilding past states needs a script. The [demo dashboard](https://alexandrabadescu.github.io/impact-led-bug-management/dashboard/) shows how: it stores each bug's events and rebuilds its state for any date, and shows figures from outside Jira (like the monthly share of work) only from the day they were reported.
 - **Whether go-live promises were kept:** needs a small script that reads each `go-live-signoff` comment's bugs and due date and compares them with the bugs' Mitigated date or resolution.
 
 ### If you build the export

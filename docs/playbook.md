@@ -40,7 +40,7 @@ This playbook is for everyone who touches bugs: QA, developers, product managers
 
 **Scores inform decisions; they don't make them.** The matrix gives everyone the same starting point. The team still weighs evidence, effort, cost of delay and what else would have to wait (see [scoring impact](#3-scoring-impact)).
 
-**How we'll know it's working:** four numbers, one per goal, reviewed every month (see [section 2](#2-goals-and-how-we-know-were-meeting-them)) and shown on the [dashboard](../dashboard/index.html).
+**How we'll know it's working:** four numbers, one per goal, reviewed every month (see [section 2](#2-goals-and-how-we-know-were-meeting-them)) and shown on the [dashboard](https://alexandrabadescu.github.io/impact-led-bug-management/dashboard/).
 
 ---
 

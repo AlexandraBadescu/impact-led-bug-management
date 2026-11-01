@@ -1,6 +1,6 @@
 # Dashboard guide
 
-One dashboard, three views, one per meeting. Each panel answers one question and says what to do when the answer looks bad. Try the [demo](../dashboard/index.html); it uses fictional data.
+One dashboard, three views, one per meeting. Each panel answers one question and says what to do when the answer looks bad. Try the [demo](https://alexandrabadescu.github.io/impact-led-bug-management/dashboard/); it uses fictional data.
 
 | View | Question | Who | When |
 |---|---|---|---|

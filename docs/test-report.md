@@ -113,7 +113,7 @@ On top of that, each of the 48 negative cases for the data validator and the 18 
 | Past dates can't reveal later information | **Verified** | Cut-off comparison at 7 dates and 3 filters; browser history test |
 | Broken business rules are caught by negative tests | **Verified** | The table above |
 | Automated tests pass in Chromium | **Verified** | `npm test`: 237 passed, 0 failed, 2 skipped (Firefox, WebKit) |
-| Firefox and WebKit | **Not tested** here | Tests exist and CI requires them. **Before publishing:** confirm the CI run is green |
+| Firefox and WebKit | **Not tested** here | Tests exist and CI requires them on every push: the result is on the repository's Actions tab |
 | Automated accessibility checks pass | **Verified** | 64 axe-core runs, plus keyboard, focus and text-spacing tests |
 | Manual accessibility checks (screen reader, 200% zoom, real devices) | **Not tested** | [Accessibility checklist](accessibility-checklist.md) |
 | The standalone preview matches the repo and works under its own security policy | **Verified** | A test builds it, checks every inline block is listed by hash, and loads every view with no policy violations |
@@ -121,7 +121,7 @@ On top of that, each of the 48 negative cases for the data validator and the 18 
 | Real AI output scored against the cases | **Not tested** | Needs a model call |
 | A Jira export or integration | **Not implemented** | A contract is documented in the [Jira setup](jira-setup.md#if-you-build-the-export) |
 | Real experience and the fictional demonstration are clearly separated | **Verified** | README and background |
-| The real-world story has a timeframe, team size and how the result was measured | **Blocked** | Waiting for author input; nothing has been guessed |
+| The real-world story has a timeframe and team size | **Not provided yet** | Left out rather than guessed. The background says how the result was measured and what it doesn't show |
 | The README's story is short enough to read quickly | **Verified** for length: 475 words of story, 693 in total | Whether a recruiter gets it in 30 seconds is **Not tested** |
 | No real employer, client, internal name or contact details | **Verified** for the listed names and patterns | Docs test (hashed word list, email and phone patterns). It can only find what it's told to look for |
 | Chart colours checked for colour-blind separation | **Not tested** here | Done with a palette tool while building; that tool isn't in the repo |

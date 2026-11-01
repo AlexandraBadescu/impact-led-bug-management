@@ -25,14 +25,6 @@ The squad went from the oldest bug backlog in Engineering to the fewest open bug
 
 That's the measure we used: open bug count and average bug age, compared with the other squads. It says the backlog got healthier. It doesn't say on its own that users hit fewer bugs, and a backlog can move for more than one reason, so I'd describe the approach as what made the decisions happen, not as the only reason the numbers moved.
 
-<!-- AUTHOR FOLLOW-UP before publishing (not shown on GitHub). Add only what you can stand behind; leave out anything you can't:
-     - Timeframe: roughly when, and how long it took to see the change.
-     - Team size: roughly how many people in the squad, and which roles.
-     - Starting point: roughly how many open bugs, or how old, if you can say.
-     - One disagreement or piece of resistance, and how it was resolved.
-     - Confirm the "Who did what" split above is accurate in your words.
-     - Confirm the measurement description (open count and average age, compared across squads). -->
-
 ## What I'd do differently, and what this version adds
 
 Running it taught me where the first version was weak. This version fixes those gaps:
