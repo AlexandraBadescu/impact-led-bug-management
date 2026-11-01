@@ -462,10 +462,10 @@
     const protection = `<strong>${PROTECTION_TEXT[x.protectionAtGoLive]}.</strong> ${esc(x.protection)}`
       + (x.protectionAtGoLive !== 'active' && x.protectedOn ? ` Users protected from ${fmt(x.protectedOn)}, from the bug's history.` : '');
     return `<tr><td data-label="What went live">${esc(x.milestone)}<br><span class="age">${fmt(x.date)}</span></td>`
-      + `<td data-label="Bugs">${x.bugsThen.map((b) => `${esc(b.id)} ${tag(b.impactThen)}`).join('<br>')}</td>`
+      + `<td data-label="Bugs">${x.bugsThen.map((b) => `<span class="nowrap">${esc(b.id)}</span> ${tag(b.impactThen)}`).join('<br>')}</td>`
       + `<td data-label="Accountable">${esc(x.accountable)}<br><span class="age">Consulted: ${esc(x.consulted)}</span></td>`
       + `<td data-label="Why, protection and residual risk">${esc(x.reason)} ${protection} <em>Residual risk: ${esc(x.residualRisk)}</em></td>`
-      + `<td data-label="Promised">${esc(x.followUp.action)} by ${fmt(x.followUp.due)}<br><span class="status ${FOLLOW_CLS[x.followUpStatus]}">${esc(followText(x))}</span></td></tr>`;
+      + `<td class="promised" data-label="Promised">${esc(x.followUp.action)} by ${fmt(x.followUp.due)}<br><span class="status ${FOLLOW_CLS[x.followUpStatus]}">${esc(followText(x))}</span></td></tr>`;
   }
   function signOffPanel(m) {
     return `<section class="panel">

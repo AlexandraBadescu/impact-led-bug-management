@@ -128,6 +128,18 @@ test('the action list stays right when the team or date changes, collapsed or ex
   await page.close();
 });
 
+test('status pills, impact tags and priority badges each draw as one box, never split across lines (found in Safari)', async () => {
+  for (const view of VIEWS) {
+    for (const width of [390, 1024, 1280, 1600]) {
+      const { page } = await open(width, view);
+      const split = await page.evaluate(() => [...document.querySelectorAll('.status, .tag, .prio')]
+        .filter((el) => el.getClientRects().length > 1).map((el) => el.textContent.trim()));
+      assert.deepEqual(split, [], `${view} at ${width}px: badges split across lines`);
+      await page.close();
+    }
+  }
+});
+
 test('on phones, where the sidebar notes are hidden, the footer still says who designed it and links to the one-page version', async () => {
   const { page } = await open(390, 'today');
   assert.equal(await page.isVisible('.byline'), false, 'the sidebar byline is hidden on phones');

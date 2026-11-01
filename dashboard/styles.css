@@ -203,7 +203,9 @@ dl.def dd { margin: 0; }
 .summary li { margin-bottom: 6px; }
 .summary .ids { color: var(--muted); font-size: 0.86rem; white-space: normal; }
 .summary .fiction { margin: 12px 0 0; font-size: 0.86rem; color: var(--muted); }
-.status { justify-self: start; font-size: 0.8rem; font-weight: 600; padding: 2px 10px; border-radius: 999px; }
+.status { display: inline-block; max-width: 100%; justify-self: start; font-size: 0.8rem; font-weight: 600; line-height: 1.35; padding: 2px 10px; border-radius: 0.9em; }
+.nowrap { white-space: nowrap; }
+td.promised { min-width: 10rem; }
 .status.on { background: var(--ok-soft); color: var(--ok); }
 .status.watch { background: var(--warn-soft); color: var(--warn); }
 .status.off { background: var(--bad-soft); color: var(--bad); }
