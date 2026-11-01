@@ -12,7 +12,7 @@ const AXE = require.resolve('axe-core/axe.min.js');
 const http = require('http');
 const fs = require('fs');
 const ROOT = path.join(__dirname, '../dashboard');
-const TYPES = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript', '.json': 'application/json' };
+const TYPES = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript', '.json': 'application/json', '.woff2': 'font/woff2' };
 let URL;
 const VIEWS = ['today', 'week', 'month', 'how'];
 const WIDTHS = [280, 344, 390, 690, 768, 860, 1024, 1280]; // folding phone to laptop, as on the website
@@ -311,6 +311,7 @@ test('the page has a strict security policy and no inline styles or scripts in i
   assert.match(csp, /default-src 'none'/);
   assert.match(csp, /script-src 'self'(;|$)/);
   assert.match(csp, /style-src 'self'(;|$)/);
+  assert.match(csp, /font-src 'self'(;|$)/);
   for (const f of ['index.html', 'app.js']) {
     assert.doesNotMatch(fs.readFileSync(path.join(ROOT, f), 'utf8'), /\sstyle=/, `${f} has an inline style attribute`);
   }
@@ -408,6 +409,21 @@ test('going back in time shows only what was known that day', async () => {
   await today.page.close();
 });
 
+test('the dashboard uses its own copy of DM Sans, with the licence alongside, and nothing from anywhere else', async () => {
+  assert.ok(fs.existsSync(path.join(ROOT, 'fonts/OFL.txt')), 'the SIL Open Font License ships with the font');
+  const { page, errors } = await open(1280, 'today');
+  const requests = [];
+  page.on('request', (r) => requests.push(r.url()));
+  await page.reload(); await page.waitForSelector('#view > *');
+  await page.evaluate(() => document.fonts.ready);
+  assert.equal(await page.evaluate(() => document.fonts.check('16px "DM Sans"')), true, 'DM Sans is loaded');
+  assert.equal(await page.evaluate(() => getComputedStyle(document.querySelector('.tile .num')).fontVariantNumeric), 'tabular-nums');
+  assert.ok(requests.some((u) => u.endsWith('/fonts/dm-sans-latin-wght-normal.woff2')), 'the font comes from the dashboard itself');
+  assert.ok(requests.every((u) => u.startsWith('http://127.0.0.1')), 'no third-party requests');
+  assert.deepEqual(errors, []);
+  await page.close();
+});
+
 async function injectScript(page) {
   return page.evaluate(() => new Promise((resolve) => {
     let blocked = false;
@@ -457,7 +473,11 @@ test('the standalone preview works under its hash-based policy, and still blocks
     await page.goto('file://' + file + '#' + view);
     await page.waitForSelector('#view > *');
     assert.deepEqual(errors, [], `${view}: the preview runs with no policy violations`);
-    if (view === 'today') assert.deepEqual(await injectScript(page), { ran: false, blocked: true });
+    if (view === 'today') {
+      assert.deepEqual(await injectScript(page), { ran: false, blocked: true });
+      await page.evaluate(() => document.fonts.ready);
+      assert.equal(await page.evaluate(() => document.fonts.check('16px "DM Sans"')), true, 'the preview carries its font inside');
+    }
     await page.close();
   }
   fs.unlinkSync(file);

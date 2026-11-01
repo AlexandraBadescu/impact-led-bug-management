@@ -4,7 +4,8 @@
 // Usage: node tools/build-preview.js [out.html]   (default: dist/Bug_Decisions_dashboard_preview.html)
 // The published dashboard loads its script and style files from its own site ('self'). The preview inlines them, and
 // its security policy lists the SHA-256 hash of each inline block. That allows exactly those blocks and nothing else:
-// a changed or injected script, an inline event handler or a style attribute is still blocked.
+// a changed or injected script, an inline event handler or a style attribute is still blocked. The font is embedded
+// as data, which the policy allows for fonts only (font-src data:).
 'use strict';
 const fs = require('fs');
 const path = require('path');
@@ -17,10 +18,13 @@ const hash = (t) => `'sha256-${crypto.createHash('sha256').update(t, 'utf8').dig
 
 function build() {
   let html = fs.readFileSync(path.join(DIR, 'index.html'), 'utf8');
-  const css = block('styles.css'), js = SCRIPTS.map(block);
+  // The font travels inside the stylesheet as data, so the single file still needs nothing from anywhere.
+  const font = fs.readFileSync(path.join(DIR, 'fonts', 'dm-sans-latin-wght-normal.woff2')).toString('base64');
+  const css = block('styles.css').replace('url("fonts/dm-sans-latin-wght-normal.woff2")', `url("data:font/woff2;base64,${font}")`), js = SCRIPTS.map(block);
+  if (!css.includes('data:font/woff2')) throw new Error('styles.css no longer names the font file');
   const swap = (from, to) => { if (!html.includes(from)) throw new Error(`index.html no longer contains: ${from}`); html = html.replace(from, () => to); };
   swap('<title>Bug Decisions: demo dashboard</title>', '<title>Bug Decisions: demo dashboard (preview)</title>');
-  swap("script-src 'self'; style-src 'self';", `script-src ${js.map(hash).join(' ')}; style-src ${hash(css)};`);
+  swap("script-src 'self'; style-src 'self'; font-src 'self';", `script-src ${js.map(hash).join(' ')}; style-src ${hash(css)}; font-src data:;`);
   swap('<link rel="stylesheet" href="styles.css">', `<style>${css}</style>`);
   SCRIPTS.forEach((f, i) => swap(`<script src="${f}"></script>`, `<script>${js[i]}</script>`));
   return html;

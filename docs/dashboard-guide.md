@@ -90,6 +90,7 @@ So nobody has to read the code to know what a number means. "Out of" is the deno
 - **A good rate never hides bad news.** Any rate over finished work is shown with the open work it leaves out, and a decision that's been escalated isn't counted as decided.
 - **Team numbers, not people numbers.** The owner is always the team. Assignees appear so work gets picked up, never to rank individuals.
 - **Built to be accessible, with honest evidence:** automated axe-core checks for WCAG A and AA rules pass at 8 widths from 280px to 1280px, in light and dark mode, and keyboard, focus and text-spacing tests pass. Automated tools cover only part of WCAG 2.2 AA, so this isn't a claim of conformance: the manual checks (screen reader, 200% zoom) are listed, with what's been done, in the [accessibility checklist](accessibility-checklist.md). Colour is never the only signal. On phones, tables become stacked cards.
+- **One typeface, self-hosted:** DM Sans, the same family as the banner's DM Serif Display and DM Mono, in a single 37 KB variable file served with the dashboard (SIL Open Font License, in `dashboard/fonts/OFL.txt`). Bundling it means every machine draws the same letters, so layout tests on a laptop and on the Linux CI runner agree. Numbers use tabular figures so they line up, and the weights are a step lighter than before.
 - **Private and secure:** a static page with a strict content security policy. No tracking, cookies, third-party code or network requests.
 
 ## Building it for real
