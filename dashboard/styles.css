@@ -292,9 +292,12 @@ dialog::backdrop { background: rgba(30, 15, 35, 0.45); }
 .dlg-head { position: sticky; top: 0; background: var(--card); padding: 16px 18px 10px; border-bottom: 1px solid var(--line); display: flex; gap: 12px; justify-content: space-between; align-items: start; }
 .dlg-head h2 { margin: 0; font-size: 1.1rem; }
 .dlg-body { padding: 14px 18px 18px; }
-.facts { display: grid; grid-template-columns: max-content 1fr; gap: 4px 14px; font-size: 0.88rem; margin: 0 0 14px; }
+.facts { display: grid; grid-template-columns: fit-content(40%) minmax(0, 1fr); gap: 4px 14px; font-size: 0.88rem; margin: 0 0 14px; }
 .facts dt { color: var(--muted); font-weight: 600; }
+.facts dt, .facts dd { overflow-wrap: anywhere; }
 .facts dd { margin: 0; }
+/* On narrow screens, or with a wide fallback font, a term column can't fit beside its definition: stack them. */
+@media (max-width: 420px) { .facts { grid-template-columns: minmax(0, 1fr); gap: 0; } .facts dd { margin-bottom: 8px; } }
 
 footer { margin-top: 18px; font-size: 0.8rem; color: var(--muted); }
 

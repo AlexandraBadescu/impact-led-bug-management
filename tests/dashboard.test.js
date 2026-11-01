@@ -89,6 +89,26 @@ test('text spacing (WCAG 1.4.12): no sideways scrolling with wider spacing on a 
   }
 });
 
+// Fonts differ by machine: system-ui is Inter or San Francisco on a laptop, but DejaVu Sans on the Linux CI runner,
+// which is noticeably wider. CI caught a 12px overflow at 280px that local runs missed, so every view is also checked
+// with a deliberately wide font stack. The style is injected for the test only (bypassing the page's policy).
+test('no sideways scrolling with a wide font, as on Linux, at 280px and with wider text spacing at 320px', async () => {
+  const WIDE = '*{font-family:"DejaVu Sans",Verdana,sans-serif!important} code,pre{font-family:"DejaVu Sans Mono",Menlo,monospace!important}';
+  for (const [width, spacing] of [[280, false], [320, true]]) {
+    for (const view of VIEWS) {
+      const page = await browser.newPage({ viewport: { width, height: 900 }, bypassCSP: true });
+      await page.goto(URL + '#' + view);
+      await page.waitForSelector('#view > *');
+      await page.addStyleTag({ content: WIDE });
+      if (spacing) await page.evaluate(() => document.querySelectorAll('*').forEach((el) => { el.style.lineHeight = '1.5'; el.style.letterSpacing = '0.12em'; el.style.wordSpacing = '0.16em'; }));
+      await page.$$eval('details', (ds) => ds.forEach((d) => { d.open = true; }));
+      const o = await overflow(page);
+      assert.ok(o <= 0, `${view} at ${width}px${spacing ? ' with wider spacing' : ''}: ${o}px too wide with a wide font`);
+      await page.close();
+    }
+  }
+});
+
 test('tables render as readable tables on wide screens and as cards on phones', async () => {
   for (const [view, sel] of [['today', '#view table.stack'], ['month', '#view table.stack']]) {
     const wide = await open(1280, view);
