@@ -28,7 +28,7 @@
       who: ['Everyone'] },
   };
 
-  const state = { view: 'today', asOf: DATA.asOf, team: '', impact: '' };
+  const state = { view: 'today', asOf: DATA.asOf, team: '', impact: '', showAllActions: false };
   const filter = () => ({ team: state.team, impact: state.impact });
 
   function how(text) { return `<details class="how"><summary>How it's counted</summary><p>${text}</p></details>`; }
@@ -61,7 +61,7 @@
   }
 
   // ---------- SVG charts ----------
-  // Series colours come from a brand-matched categorical palette, checked with a palette tool while building (CSS tokens --c1..--c5, light and dark).
+  // Series colours: CSS tokens --c1..--c5, light and dark, checked for colour-blind separation by tools/check-palette.js.
   // One y-axis only; thin marks; every chart has a legend, a text alternative, a hover readout and a table view.
   const narrow = () => window.innerWidth < 560;
   // Axis tops that halve into whole numbers, so counts never show as 2.5.
@@ -136,15 +136,20 @@
   const idCell = (s) => `<button type="button" class="idbtn" data-id="${esc(s.id)}" aria-haspopup="dialog">${esc(s.id)}</button><span class="title">${esc(s.title)}</span>`;
 
   // Scrollable tables must be reachable by keyboard (WCAG 2.1.1), so each wrapper is a labelled, focusable region.
+  // Each panel's help: a short summary written for it, with the full explanation one click away.
+  function help(summary, more) {
+    return `<p class="help">${summary}</p><details class="more"><summary>More about this panel</summary><p>${more}</p></details>`;
+  }
+
   function regions(html) {
     return html.replace(/<div class="table-wrap"><table([^>]*)>\s*<caption([^>]*)>([^<]*)<\/caption>/g,
       (m, attrs, capAttrs, cap) => `<div class="table-wrap" role="region" tabindex="0" aria-label="${cap}"><table${attrs}><caption${capAttrs}>${cap}</caption>`);
   }
 
   // ---------- Today ----------
-  function actionRow(s) {
+  function actionRow(s, hidden) {
     const why = M.reasons(s).map((x) => `<span class="${/Urgent|past fix|leadership|after 2 days/.test(x) ? 'hot' : ''}">${esc(x)}</span>`).join('');
-    return `<tr><td>${idCell(s)}</td>`
+    return `<tr${hidden ? ' hidden' : ''}><td>${idCell(s)}</td>`
       + `<td data-label="Team">${esc(s.team)}${s.assignee ? ` · ${esc(s.assignee)}` : ''}</td>`
       + `<td data-label="Impact"><span class="pi">${prio(s.priority)}${tag(s.impact)}<span class="age">${s.age} days old</span></span></td>`
       + `<td class="n hide-sm">${s.age}d</td><td data-label="Why"><div class="why">${why}</div></td>`
@@ -179,21 +184,35 @@
     const statuses = M.byStatus(t.open);
     const counts = M.countByLevel(t.open);
     const impacts = LV.map(([l, c]) => ({ label: lvName(l), cls: 's-' + c, count: counts[l] }));
-    const rows = t.queue.map(actionRow).join('');
+    // The most urgent few are always on screen; the rest are one click away, so the list starts short.
+    const TOP = 5, extra = Math.max(0, t.queue.length - TOP);
+    const rows = t.queue.map((s, i) => actionRow(s, i >= TOP && !state.showAllActions)).join('');
+    const toggle = extra ? `<button type="button" class="linkbtn" id="toggle-actions" aria-controls="action-table" aria-expanded="${state.showAllActions ? 'true' : 'false'}">${state.showAllActions ? `Show only the top ${TOP}` : `Show all ${t.queue.length} bugs (${extra} more)`}</button>` : '';
     return `
     <div class="tiles">
       ${todayTiles(t)}
     </div>
+    <section class="panel">
+      <h2>The action list</h2>
+      ${help(`${plural(t.queue.length, 'bug')} need something, most urgent first.`, `The order is the one developers pick up work in: P0 emergencies first, then bugs not yet triaged (they could be emergencies), then agreed P1 work, then decisions that are due. Select a bug ID to see its history.`)}
+      <div class="table-wrap"><table class="stack" id="action-table">
+        <caption class="sr">Bugs that need action, with the reason and the next step</caption>
+        <thead><tr><th scope="col">Bug</th><th scope="col">Team · assignee</th><th scope="col">Priority · impact</th><th scope="col" class="n hide-sm">Age</th><th scope="col">Why it's here</th><th scope="col">Next step</th></tr></thead>
+        <tbody>${rows || '<tr><td colspan="6">Nothing needs action. Good day.</td></tr>'}</tbody>
+      </table></div>
+      ${toggle}
+    </section>
+    <details class="explore"><summary><span class="explore-title">Explore the open backlog</span><span class="explore-sub">Six panels: state, impact, reproducibility, team review, team load and missing information</span></summary>
     <div class="grid2">
       <section class="panel">
         <h2>What state are open bugs in?</h2>
-        <p class="help">Every open bug by where it is in its life. A big "New" slice means triage is behind; a big "Deferred" slice is fine as long as the reviews are up to date.</p>
+        ${help(`Where each open bug is in its life.`, `A big "New" slice means triage is behind; a big "Deferred" slice is fine as long as the reviews are up to date.`)}
         ${donut({ parts: statuses, label: 'Open bugs by status' })}
         ${tableView('Open bugs by status', ['Status', 'Bugs'], statuses.map((p) => [p.label, p.count]))}
       </section>
       <section class="panel">
         <h2>How serious are open bugs?</h2>
-        <p class="help">Open bugs by impact. Bugs not yet scored are shown on their own, never counted as Low.</p>
+        ${help(`How serious the open bugs are.`, `Bugs not yet scored are shown on their own, never counted as Low.`)}
         ${bars(impacts.map((x) => ({ label: x.label, count: x.count, cls: x.cls })))}
         ${tableView('Open bugs by impact', ['Impact', 'Bugs'], impacts.map((x) => [x.label, x.count]))}
       </section>
@@ -201,38 +220,30 @@
     <div class="grid2">
       <section class="panel">
         <h2>Can we reproduce them?</h2>
-        <p class="help">Open bugs by whether the team could reproduce them, from the Jira labels <code>reproducible</code> and <code>not-reproducible</code>. A bug nobody can reproduce can't be fixed with confidence: pair with the reporter, or add logging.</p>
+        ${help(`Whether the team could reproduce each open bug.`, `From the Jira labels <code>reproducible</code> and <code>not-reproducible</code>. A bug nobody can reproduce can't be fixed with confidence: pair with the reporter, or add logging.`)}
         ${bars(t.repro.map((x, i) => ({ label: x.label, count: x.count, cls: ['c2', 'c4', 's-u'][i] })))}
         ${tableView('Open bugs by reproducibility', ['Reproducible?', 'Bugs'], t.repro.map((x) => [x.label, x.count]))}
       </section>
       <section class="panel">
         <h2>Has the team reviewed them?</h2>
-        <p class="help">Open bugs by team review, from the Jira label <code>bug-reviewed</code>, added at triage. When a bug's review date passes it's due for review again, so "reviewed" never goes stale.</p>
+        ${help(`Whether the team has looked at each open bug recently.`, `From the Jira label <code>bug-reviewed</code>, added at triage. When a bug's review date passes it's due for review again, so "reviewed" never goes stale.`)}
         ${bars(t.reviewed.map((x, i) => ({ label: x.label, count: x.count, cls: ['c2', 'c3', 's-u'][i] })))}
         ${tableView('Open bugs by team review', ['Reviewed?', 'Bugs'], t.reviewed.map((x) => [x.label, x.count]))}
       </section>
     </div>
-    <section class="panel">
-      <h2>The action list</h2>
-      <p class="help">${plural(t.queue.length, 'bug')} need something, in the order developers pick up work: P0 emergencies first, then bugs not yet triaged (they could be emergencies), then agreed P1 work, then decisions that are due. Select a bug ID to see its history.</p>
-      <div class="table-wrap"><table class="stack">
-        <caption class="sr">Bugs that need action, with the reason and the next step</caption>
-        <thead><tr><th scope="col">Bug</th><th scope="col">Team · assignee</th><th scope="col">Priority · impact</th><th scope="col" class="n hide-sm">Age</th><th scope="col">Why it's here</th><th scope="col">Next step</th></tr></thead>
-        <tbody>${rows || '<tr><td colspan="6">Nothing needs action. Good day.</td></tr>'}</tbody>
-      </table></div>
-    </section>
     <div class="grid2">
       <section class="panel">
         <h2>Is any team taking on too much?</h2>
-        <p class="help">Urgent bugs being worked on right now (In progress or Verification). Suggested limit: ${P.urgentInProgressLimit} per team, so work gets finished before more starts.</p>
+        ${help(`Urgent bugs being worked on now, per team, against a limit of ${P.urgentInProgressLimit}.`, `Counts urgent bugs in progress or in verification. Suggested limit: ${P.urgentInProgressLimit} per team, so work gets finished before more starts.`)}
         ${bars(t.wip.map((w) => ({ label: w.team, count: w.count, text: `${w.count} / ${w.limit}`, over: w.count > w.limit })), P.urgentInProgressLimit)}
       </section>
       <section class="panel">
         <h2>What information is missing?</h2>
-        <p class="help">A bug can't be prioritised without an impact score and an agreed priority, and a deferral needs a reason and a review date. The owner is always the team whose board the bug is on, so it's never missing.</p>
+        ${help(`Open bugs missing what they need to be prioritised.`, `A bug can't be prioritised without an impact score and an agreed priority, and a deferral needs a reason and a review date. The owner is always the team whose board the bug is on, so it's never missing.`)}
         ${bars(t.missing.map((m) => ({ label: m.field, count: m.count })))}
       </section>
-    </div>`;
+    </div>
+    </details>`;
   }
 
   // ---------- This week ----------
@@ -257,28 +268,29 @@
     <div class="grid2">
       <section class="panel">
         <h2>Bug trends</h2>
-        <p class="help">New, fixed and reopened bugs per week, over the last 12 weeks. More coming in than going out for three weeks or more is worth raising at the monthly review.</p>
+        ${help(`New, fixed and reopened bugs each week.`, `More coming in than going out for three weeks or more is worth raising at the monthly review.`)}
         ${lineChart({ labels: w12.map((x) => x.end), series: [{ name: 'New', cls: 'c1', values: w12.map((x) => x.created) }, { name: 'Fixed', cls: 'c2', values: w12.map((x) => x.fixed) }, { name: 'Reopened', cls: 'c3', values: w12.map((x) => x.reopened) }], label: 'Bug trends' })}
         ${tableView('Bugs per week', ['Week ending', 'New', 'Fixed', 'Reopened', 'Closed, no fix'], w12.map((x) => [short(x.end), x.created, x.fixed, x.reopened, x.other]))}
       </section>
       <section class="panel">
         <h2>How long until bugs are fixed or mitigated?</h2>
-        <p class="help">Median days from a bug being raised to being fixed or mitigated (a workaround or flag that removes the impact counts), by impact when raised, over the last 90 days. The dashed line is the target.</p>
+        ${help(`How fast urgent bugs were made safe, against the target.`, `Median days from a bug being raised to being fixed or mitigated (a workaround or flag that removes the impact counts), by impact when raised, over the last 90 days. The dashed line is the target.`)}
         ${columnChart({ items: tts.map((l) => ({ label: l.level, value: l.median, target: l.target, count: l.count })), label: 'Median days until fixed or mitigated, by impact' })}
         ${tableView('Time until fixed or mitigated, by impact', ['Impact', 'Bugs', 'Median days', 'Target', 'Within target'], tts.map((l) => [l.level, l.count, l.median == null ? '—' : l.median, l.target ? l.target + ' days' : 'Planned', l.target ? `${l.withinTarget} of ${l.count}` : '—']))}
         <p class="take">${late ? `${plural(late, 'urgent bug')} still open and past target. They aren't in the medians above, which only cover finished work.` : 'No urgent bugs are open and past target.'}</p>
       </section>
     </div>
+    <details class="explore"><summary><span class="explore-title">Where bugs come from, and where they sit</span><span class="explore-sub">Six panels: flow by team, where bugs are caught, causes, prevention, age and hotspots</span></summary>
     <div class="grid2">
       <section class="panel">
         <h2>Where are more bugs coming in than going out?</h2>
-        <p class="help">New and fixed bugs per team over the last 28 days. More coming in than going out for a few weeks is a signal to look at support or capacity together, not a judgement on the team.</p>
+        ${help(`New against fixed bugs per team, last 28 days.`, `More coming in than going out for a few weeks is a signal to look at support or capacity together, not a judgement on the team.`)}
         ${pairedBars({ rows: flow.map((f) => ({ label: f.team, created: f.created, fixed: f.fixed })), a: { key: 'created', name: 'New' }, b: { key: 'fixed', name: 'Fixed' } })}
         ${tableView('New and fixed per team, last 28 days', ['Team', 'New', 'Fixed', 'Reopened', 'Closed, no fix'], flow.map((f) => [f.team, f.created, f.fixed, f.reopened, f.other]))}
       </section>
       <section class="panel">
         <h2>Where are bugs caught? <span class="optional">Optional</span></h2>
-        <p class="help">Bugs raised in the last 90 days, by how they were found. Optional: it needs "Found in" and "Found by" recorded on each bug. Worth it if you want to show where test automation would pay off; skip it if it's extra effort for your team.</p>
+        ${help(`How bugs were found, and how many reached production.`, `Covers bugs raised in the last 90 days. Optional: it needs "Found in" and "Found by" recorded on each bug. Worth it if you want to show where test automation would pay off; skip it if it's extra effort for your team.`)}
         ${bars([{ label: 'Before release', count: w.caught.before }, { label: 'In production', count: w.caught.production }])}
         <h3 class="sr">Found by</h3>
         <div class="gap-top">${bars(w.foundBy.map((x) => ({ label: x.label, count: x.count })))}</div>
@@ -288,27 +300,28 @@
     <div class="grid2">
       <section class="panel">
         <h2>What causes them?</h2>
-        <p class="help">Causes of fixed High and Very high bugs, and anything reopened, in the last 90 days. Cause labels are optional; the monthly prevention review agrees the cause for any without one.</p>
+        ${help(`What caused the urgent and reopened bugs we fixed.`, `Covers fixed High and Very high bugs, and anything reopened, in the last 90 days. Cause labels are optional; the monthly prevention review agrees the cause for any without one.`)}
         ${bars(w.rootCauses.map((x) => ({ label: x.label, count: x.count })))}
       </section>
       <section class="panel">
         <h2>What did we add so they don't come back?</h2>
-        <p class="help">The test or check that came with each fix, from its linked pull request. A fix without one is a bug waiting to return.</p>
+        ${help(`The test or check added with each fix.`, `Taken from each fix's linked pull request. A fix without one is a bug waiting to return.`)}
         <ul>${w.prevention.slice(0, 8).map((p) => `<li><strong>${esc(p.id)}</strong>${p.rootCause ? ` (${esc(p.rootCause)})` : ''}: ${esc(p.prevention)}</li>`).join('') || '<li>Nothing in this period.</li>'}</ul>
       </section>
     </div>
     <div class="grid2">
       <section class="panel">
         <h2>How old are open bugs?</h2>
-        <p class="help">Open bugs by age and impact. A plan is needed by day 30 for High and Very high, day 90 for Medium and day 180 for Low (flagged from the day after), so Very high and High bugs in the older rows need attention first.</p>
+        ${help(`How old the open bugs are, by impact.`, `A plan is needed by day 30 for High and Very high, day 90 for Medium and day 180 for Low (flagged from the day after), so Very high and High bugs in the older rows need attention first.`)}
         ${stacked(ages, 'Open bugs by age and impact', 'Age')}
       </section>
       <section class="panel">
         <h2>Where are the hotspots?</h2>
-        <p class="help">Open bugs by product area and impact, highest weighted exposure first. An area at the top is a candidate for a focused fix-up or tech debt work.</p>
+        ${help(`The product areas carrying the most open risk.`, `Sorted by weighted exposure, highest first. An area at the top is a candidate for a focused fix-up or tech debt work.`)}
         ${stacked(hot, 'Open bugs by area and impact', 'Team · area')}
       </section>
-    </div>`;
+    </div>
+    </details>`;
   }
 
   // ---------- This month ----------
@@ -360,13 +373,13 @@
     return `<div class="grid2">
       <section class="panel">
         <h2>Is weighted exposure going down?</h2>
-        <p class="help">The weighted exposure of all open bugs at the end of each week: each open bug adds 8 for Very high, 4 for High, 2 for Medium and 1 for Low. The weights are a ranking convention that lets one serious bug outweigh a few small ones; they don't measure money or customers. Bugs not yet scored are listed under the bars rather than counted as zero.</p>
+        ${help(`Whether open risk is building up, week by week.`, `Measured at the end of each week: each open bug adds 8 for Very high, 4 for High, 2 for Medium and 1 for Low. The weights are a ranking convention that lets one serious bug outweigh a few small ones; they don't measure money or customers. Bugs not yet scored are listed under the bars rather than counted as zero.`)}
         <ul class="cols" aria-label="Weighted exposure of open bugs by week">${cols}</ul>
         <p class="take">${take}</p>
       </section>
       <section class="panel">
         <h2>How are open bugs spread across teams?</h2>
-        <p class="help">Open bugs by team and impact, with each team's weighted exposure in brackets. The counts matter as much as the total: select "Show as a table" for exact numbers.</p>
+        ${help(`Open bugs by team and impact.`, `The counts matter as much as the total: select "Show as a table" for exact numbers.`)}
         ${stacked(byTeam, 'Open bugs by team and impact', 'Team')}
       </section>
     </div>`;
@@ -389,14 +402,14 @@
   function risksPanel(m) {
     return `<section class="panel">
       <h2>Which risks have we chosen to carry?</h2>
-      <p class="help">Deferred bugs stay open and visible, and count in weighted exposure. Each one needs a reason from the fixed list and a date to look again; a workaround is added when there is one, with how much it protects users. The team's product owner makes the call; leadership does for accepting a High or Very high risk, which stays here marked "Accepted".</p>
+      ${help(`Bugs we've decided not to fix yet, why, and when we'll look again.`, `Deferred bugs stay open and visible, and count in weighted exposure. Each one needs a reason from the fixed list and a date to look again; a workaround is added when there is one, with how much it protects users. The team's product owner makes the call; leadership does for accepting a High or Very high risk, which stays here marked "Accepted".`)}
       <div class="table-wrap"><table class="stack">
         <caption class="sr">Deferred bugs and their review dates</caption>
         <thead><tr><th scope="col">Bug</th><th scope="col">Team</th><th scope="col">Impact</th><th scope="col">Why deferred</th><th scope="col">Workaround</th><th scope="col">Review by</th></tr></thead>
         <tbody>${m.deferred.map(deferredRow).join('') || '<tr><td colspan="6">No deferred bugs.</td></tr>'}</tbody>
       </table></div>
       <h3 class="sub-h">Closed as accepted risk</h3>
-      <p class="help">Only Low and Medium risks can be closed as accepted. They leave the fixing queue and the exposure total, but stay listed here with their residual impact, who accepted them and a date to look again, until the risk is retired.</p>
+      ${help(`Low and Medium risks we've accepted, listed until they're retired.`, `Only Low and Medium risks can be closed as accepted. They leave the fixing queue and the exposure total, but stay listed here with their residual impact, who accepted them and a date to look again, until the risk is retired.`)}
       <ul>${m.acceptedClosed.map(acceptedItem).join('') || '<li>None.</li>'}</ul>
     </section>`;
   }
@@ -419,7 +432,7 @@
     const advice = ai.status === 'Watch' ? 'At the limit: run the drafting skill against the known-answer cases before the next batch.' : ai.status === 'Pause AI drafting' ? 'Pause drafting and fix the prompt.' : '';
     return `<section class="panel">
       <h2>Is AI helping?</h2>
-      <p class="help">Bugs raised in the last 90 days, from the labels <code>found-with-ai</code> (an AI tool helped find it) and <code>ai-drafted</code> (an AI tool drafted the ticket and a person checked it). These are learning numbers for the team, never a comparison of people.</p>
+      ${help(`Whether AI finds real bugs, and drafts tickets people accept.`, `Covers bugs raised in the last 90 days, from the labels <code>found-with-ai</code> (an AI tool helped find it) and <code>ai-drafted</code> (an AI tool drafted the ticket and a person checked it). These are learning numbers for the team, never a comparison of people.`)}
       <div class="grid2 flat">
         <div>
           <h3 class="sub-h">Bugs found with AI</h3>
@@ -449,15 +462,15 @@
     const protection = `<strong>${PROTECTION_TEXT[x.protectionAtGoLive]}.</strong> ${esc(x.protection)}`
       + (x.protectionAtGoLive !== 'active' && x.protectedOn ? ` Users protected from ${fmt(x.protectedOn)}, from the bug's history.` : '');
     return `<tr><td data-label="What went live">${esc(x.milestone)}<br><span class="age">${fmt(x.date)}</span></td>`
-      + `<td data-label="Bugs">${x.bugsThen.map((b) => `${esc(b.id)} ${tag(b.impactThen)}`).join('<br>')}</td>`
+      + `<td data-label="Bugs">${x.bugsThen.map((b) => `<span class="nowrap">${esc(b.id)}</span> ${tag(b.impactThen)}`).join('<br>')}</td>`
       + `<td data-label="Accountable">${esc(x.accountable)}<br><span class="age">Consulted: ${esc(x.consulted)}</span></td>`
       + `<td data-label="Why, protection and residual risk">${esc(x.reason)} ${protection} <em>Residual risk: ${esc(x.residualRisk)}</em></td>`
-      + `<td data-label="Promised">${esc(x.followUp.action)} by ${fmt(x.followUp.due)}<br><span class="status ${FOLLOW_CLS[x.followUpStatus]}">${esc(followText(x))}</span></td></tr>`;
+      + `<td class="promised" data-label="Promised">${esc(x.followUp.action)} by ${fmt(x.followUp.due)}<br><span class="status ${FOLLOW_CLS[x.followUpStatus]}">${esc(followText(x))}</span></td></tr>`;
   }
   function signOffPanel(m) {
     return `<section class="panel">
       <h2>Known urgent bugs accepted at go-live</h2>
-      <p class="help">Anything that goes live with an open High or Very high bug linked to it needs a recorded sign-off: who is accountable, why, how users are protected at that moment (active, proposed or none), the residual risk, and what was promised by when. Whether a protection became active and whether the promise was kept come from the bug's own history, not from the sign-off. Some risks can't be signed off at all: an active incident, a safety risk, an unmitigated security vulnerability or a confirmed legal breach blocks go-live. In Scrum, this is the sprint release or milestone; in Kanban, when a feature goes live for everyone or an epic is closed.</p>
+      ${help(`Releases that went live with a known urgent bug, and whether the promise was kept.`, `Anything that goes live with an open High or Very high bug linked to it needs a recorded sign-off: who is accountable, why, how users are protected at that moment (active, proposed or none), the residual risk, and what was promised by when. Whether a protection became active and whether the promise was kept come from the bug's own history, not from the sign-off. Some risks can't be signed off at all: an active incident, a safety risk, an unmitigated security vulnerability or a confirmed legal breach blocks go-live. In Scrum, this is the sprint release or milestone; in Kanban, when a feature goes live for everyone or an epic is closed.`)}
       <div class="table-wrap"><table class="stack">
         <caption class="sr">Go-live sign-offs with open urgent bugs, and whether the promised follow-up happened</caption>
         <thead><tr><th scope="col">What went live</th><th scope="col">Bugs (impact then)</th><th scope="col">Accountable</th><th scope="col">Why, protection and residual risk</th><th scope="col">Promised</th></tr></thead>
@@ -473,7 +486,7 @@
     });
     return `<section class="panel">
       <h2>What share of completed tickets were bugs or tech debt?${filtered ? ' <span class="optional">All teams</span>' : ''}</h2>
-      <p class="help">Each month's share of completed tickets that were bugs or tech debt, against the share planned. Counted from Jira (tickets resolved in the month, by type), so no time tracking is needed. It counts tickets, not effort: a one-line fix and a two-week investigation both count as one, so read it as a signal, not a measure of time spent. A month appears once its report exists; the current month is shown to date.${filtered ? ' This panel covers all teams and doesn\'t follow the filters.' : ''}</p>
+      ${help(`How much of the work went on bugs and tech debt, against the plan.`, `Counted from Jira (tickets resolved in the month, by type), so no time tracking is needed. It counts tickets, not effort: a one-line fix and a two-week investigation both count as one, so read it as a signal, not a measure of time spent. A month appears once its report exists; the current month is shown to date.${filtered ? ' This panel covers all teams and doesn\'t follow the filters.' : ''}`)}
       ${rows.length ? bars(rows, 25) : '<p>No monthly report yet on this date.</p>'}
     </section>`;
   }
@@ -482,8 +495,9 @@
     const m = M.month(DATA.issues, state.asOf, filter(), DATA);
     const sum = M.summary(DATA.issues, state.asOf, filter(), DATA);
     const ai = M.aiHelp(DATA.issues, state.asOf, filter());
-    return [summaryPanel(sum), `<div class="goals">${m.goals.map(goalCard).join('')}</div>`, exposurePanels(m), risksPanel(m), aiPanel(ai),
-      signOffPanel(m), sharePanel(m, !!(state.team || state.impact))].join('\n');
+    const more = [exposurePanels(m), aiPanel(ai), sharePanel(m, !!(state.team || state.impact))].join('\n');
+    return [summaryPanel(sum), `<div class="goals">${m.goals.map(goalCard).join('')}</div>`, risksPanel(m), signOffPanel(m),
+      `<details class="explore"><summary><span class="explore-title">Explore the trends</span><span class="explore-sub">Weighted exposure over time, open bugs by team, "Is AI helping?" and the share of work spent on bugs</span></summary>\n${more}\n</details>`].join('\n');
   }
 
   // ---------- How it works ----------
@@ -674,7 +688,10 @@
   $('export').addEventListener('click', exportCsv);
   // The filters never submit anywhere. This replaces an inline onsubmit attribute, which the security policy blocks.
   $('filters').addEventListener('submit', (e) => e.preventDefault());
-  $('view').addEventListener('click', (e) => { const b = e.target.closest('.idbtn'); if (b) openBug(b.dataset.id); });
+  $('view').addEventListener('click', (e) => {
+    const b = e.target.closest('.idbtn'); if (b) openBug(b.dataset.id);
+    if (e.target.closest('#toggle-actions')) { state.showAllActions = !state.showAllActions; render(); $('toggle-actions').focus(); }
+  });
   $('dlg-close').addEventListener('click', () => $('dlg').close());
   // Hover tooltip for chart segments. Each bar also has a text alternative and a table view, so nothing depends on hover.
   const tip = document.createElement('div');

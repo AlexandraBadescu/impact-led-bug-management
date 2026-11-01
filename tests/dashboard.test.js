@@ -12,7 +12,7 @@ const AXE = require.resolve('axe-core/axe.min.js');
 const http = require('http');
 const fs = require('fs');
 const ROOT = path.join(__dirname, '../dashboard');
-const TYPES = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript', '.json': 'application/json' };
+const TYPES = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript', '.json': 'application/json', '.woff2': 'font/woff2' };
 let URL;
 const VIEWS = ['today', 'week', 'month', 'how'];
 const WIDTHS = [280, 344, 390, 690, 768, 860, 1024, 1280]; // folding phone to laptop, as on the website
@@ -73,6 +73,112 @@ for (const scheme of SCHEMES) {
   }
 }
 
+test('the action list starts with the 5 most urgent bugs; the rest are one keyboard-reachable click away', async () => {
+  const { page, errors } = await open(1280, 'today');
+  const visible = () => page.$$eval('#action-table tbody tr', (rs) => rs.filter((r) => !r.hidden && r.offsetParent !== null).length);
+  assert.equal(await visible(), 5);
+  const btn = page.locator('#toggle-actions');
+  assert.equal(await btn.getAttribute('aria-expanded'), 'false');
+  assert.match(await btn.textContent(), /Show all 17 bugs \(12 more\)/);
+  await btn.focus();
+  await page.keyboard.press('Enter');
+  assert.equal(await visible(), 17);
+  assert.equal(await page.locator('#toggle-actions').getAttribute('aria-expanded'), 'true');
+  assert.equal(await page.evaluate(() => document.activeElement.id), 'toggle-actions', 'focus stays on the button');
+  await page.keyboard.press('Enter');
+  assert.equal(await visible(), 5);
+  assert.deepEqual(errors, []);
+  await page.close();
+  const phone = await open(390, 'today');
+  assert.equal(await phone.page.$$eval('#action-table tbody tr', (rs) => rs.filter((r) => getComputedStyle(r).display !== 'none').length), 5, 'phones too, where rows are cards');
+  await phone.page.close();
+});
+
+test('the three things that make the dashboard credible are visible without opening anything', async () => {
+  for (const width of [1280, 390]) {
+    const { page } = await open(width, 'month');
+    const late = page.locator('.goal .alongside.late');
+    assert.ok(await late.isVisible(), `${width}px: overdue urgent bugs beside the on-time rate`);
+    assert.match(await late.textContent(), /BUG-109, BUG-110, BUG-140, BUG-148/);
+    assert.ok(await page.locator('.summary .fiction').isVisible(), `${width}px: why the fictional data is red`);
+    assert.ok(await page.locator('.summary h3:has-text("What needs a decision?")').isVisible(), `${width}px: the decisions summary`);
+    assert.ok(await page.locator('.summary li:has-text("BUG-148")').first().isVisible());
+    await page.close();
+  }
+});
+
+test('the action list stays right when the team or date changes, collapsed or expanded', async () => {
+  const { page, errors } = await open(1280, 'today');
+  const shown = () => page.$$eval('#action-table tbody tr', (rs) => rs.filter((r) => !r.hidden).length);
+  await page.click('#toggle-actions');
+  assert.equal(await shown(), 17);
+  await page.selectOption('#team', 'Orders & Delivery');
+  const total = await page.$$eval('#action-table tbody tr', (rs) => rs.length);
+  assert.ok(total < 17 && total > 0, 'filtered to one team');
+  assert.equal(await shown(), total, 'still expanded, showing every row for that team');
+  await page.click('#toggle-actions');
+  assert.equal(await shown(), Math.min(5, total));
+  await page.selectOption('#team', '');
+  await page.fill('#asof', '2026-08-01');
+  await page.dispatchEvent('#asof', 'change');
+  const past = await page.$$eval('#action-table tbody tr', (rs) => rs.length);
+  assert.notEqual(past, 17, 'an earlier date has a different list');
+  if (past > 5) assert.match(await page.textContent('#toggle-actions'), new RegExp(`Show all ${past} bugs`));
+  assert.deepEqual(errors, []);
+  await page.close();
+});
+
+test('status pills, impact tags and priority badges each draw as one box, never split across lines (found in Safari)', async () => {
+  for (const view of VIEWS) {
+    for (const width of [390, 1024, 1280, 1600]) {
+      const { page } = await open(width, view);
+      const split = await page.evaluate(() => [...document.querySelectorAll('.status, .tag, .prio')]
+        .filter((el) => el.getClientRects().length > 1).map((el) => el.textContent.trim()));
+      assert.deepEqual(split, [], `${view} at ${width}px: badges split across lines`);
+      await page.close();
+    }
+  }
+});
+
+test('on phones, where the sidebar notes are hidden, the footer still says who designed it and links to the one-page version', async () => {
+  const { page } = await open(390, 'today');
+  assert.equal(await page.isVisible('.byline'), false, 'the sidebar byline is hidden on phones');
+  const credit = page.locator('footer .credit');
+  assert.ok(await credit.isVisible());
+  assert.match(await credit.textContent(), /Designed by Alexandra Badescu[\s\S]*fictional[\s\S]*one-page version/);
+  await page.close();
+});
+
+test('each expanded explanation adds to its summary instead of repeating it', async () => {
+  const { page } = await open(1280, 'week');
+  const words = (t) => new Set(t.toLowerCase().match(/[a-z]+/g).filter((w) => w.length > 3));
+  const pairs = await page.$$eval('#view .panel', (ps) => ps.filter((p) => p.querySelector(':scope > .help + details.more'))
+    .map((p) => [p.querySelector('.help').textContent, p.querySelector('details.more p').textContent.split(/(?<=[.?!])\s/)[0]]));
+  assert.ok(pairs.length > 0);
+  for (const [summary, first] of pairs) {
+    const a = words(summary), b = words(first), shared = [...a].filter((w) => b.has(w)).length;
+    assert.ok(shared / Math.max(1, Math.min(a.size, b.size)) < 0.7, `"${first}" repeats "${summary}"`);
+  }
+  await page.close();
+});
+
+test('the sidebar says who designed it, that the data is fictional, and links to the one-page version', async () => {
+  const { page } = await open(1280, 'today');
+  const by = await page.textContent('.byline');
+  assert.match(by, /Designed by Alexandra Badescu[\s\S]*fictional/);
+  assert.equal(await page.getAttribute('.byline a:has-text("one-page version")', 'href'), 'https://github.com/AlexandraBadescu/impact-led-bug-management/blob/main/docs/minimum-viable-approach.md');
+  await page.close();
+});
+
+test('help text: a short written summary at a glance, the full explanation under "More about this panel"', async () => {
+  const { page } = await open(1280, 'week');
+  const helps = await page.$$eval('#view .panel .help', (ps) => ps.map((p) => p.textContent.trim()));
+  assert.ok(helps.length > 0);
+  assert.ok(helps.every((t) => (t.match(/[.?!](\s|$)/g) || []).length <= 1), 'each visible help line is one sentence');
+  assert.ok(await page.locator('details.more').count() > 0, 'the rest is still there, one click away');
+  await page.close();
+});
+
 test('text spacing (WCAG 1.4.12): no sideways scrolling with wider spacing on a 320px screen', async () => {
   for (const view of VIEWS) {
     const { page } = await open(320, view);
@@ -112,7 +218,7 @@ test('no sideways scrolling with a wide font, as on Linux, at 280px and with wid
 test('tables render as readable tables on wide screens and as cards on phones', async () => {
   for (const [view, sel] of [['today', '#view table.stack'], ['month', '#view table.stack']]) {
     const wide = await open(1280, view);
-    const t = await wide.page.$eval(sel, (el) => ({ display: getComputedStyle(el).display, rows: el.tBodies[0].rows.length, h: el.getBoundingClientRect().height, firstRow: el.tBodies[0].rows[0].getBoundingClientRect().height }));
+    const t = await wide.page.$eval(sel, (el) => ({ display: getComputedStyle(el).display, rows: [...el.tBodies[0].rows].filter((r) => !r.hidden).length, h: el.getBoundingClientRect().height, firstRow: el.tBodies[0].rows[0].getBoundingClientRect().height }));
     assert.equal(t.display, 'table', `${view}: the table is laid out as a table`);
     assert.ok(t.firstRow >= 30, `${view}: rows are readable (first row ${t.firstRow}px)`);
     assert.ok(t.h >= t.rows * 30, `${view}: the table isn't squashed (${t.h}px for ${t.rows} rows)`);
@@ -148,17 +254,24 @@ test('every chart has a text alternative, a legend and a table view, and shows a
   }
 });
 
-test('Today shows the charts first, then the action list; optional panels are marked', async () => {
+test('each view leads with what to act on; the supporting panels are one click away under "Explore"', async () => {
   const { page } = await open(1280, 'today');
-  const order = await page.$$eval('#view h2', (hs) => hs.map((h) => h.textContent.trim()));
-  const at = (t) => order.findIndex((h) => h.startsWith(t));
+  const top = await page.$$eval('#view > section h2, #view > .tiles h2', (hs) => hs.map((h) => h.textContent.trim()));
+  assert.ok(top.includes('The action list'), 'the action list is at the top level, right after the tiles');
+  const hidden = await page.$$eval('#view details.explore:not([open]) .panel h2', (hs) => hs.map((h) => h.textContent.trim()));
   for (const chart of ['What state are open bugs in?', 'How serious are open bugs?', 'Can we reproduce them?', 'Has the team reviewed them?']) {
-    assert.ok(at(chart) >= 0 && at(chart) < at('The action list'), `${chart} comes before the action list`);
+    assert.ok(hidden.some((h) => h.startsWith(chart)), `${chart} is under Explore, closed by default`);
   }
   await page.close();
   const w = await open(1280, 'week');
   assert.equal(await w.page.textContent('h2:has-text("Where are bugs caught?") .optional'), 'Optional');
+  assert.equal(await w.page.locator('#view > .grid2 h2:has-text("Bug trends")').count(), 1, 'trends stay at a glance');
   await w.page.close();
+  const m = await open(1280, 'month');
+  const glance = await m.page.$$eval('#view > section h2', (hs) => hs.map((h) => h.textContent.trim()));
+  assert.deepEqual(glance, ['This month in three questions', 'Which risks have we chosen to carry?', 'Known urgent bugs accepted at go-live'],
+    'leadership sees decisions, goals, risks and promises first');
+  await m.page.close();
 });
 
 test('the reference page and footer say the strategy is comprehensive and should be simplified', async () => {
@@ -210,6 +323,7 @@ test('the page has a strict security policy and no inline styles or scripts in i
   assert.match(csp, /default-src 'none'/);
   assert.match(csp, /script-src 'self'(;|$)/);
   assert.match(csp, /style-src 'self'(;|$)/);
+  assert.match(csp, /font-src 'self'(;|$)/);
   for (const f of ['index.html', 'app.js']) {
     assert.doesNotMatch(fs.readFileSync(path.join(ROOT, f), 'utf8'), /\sstyle=/, `${f} has an inline style attribute`);
   }
@@ -307,6 +421,21 @@ test('going back in time shows only what was known that day', async () => {
   await today.page.close();
 });
 
+test('the dashboard uses its own copy of DM Sans, with the licence alongside, and nothing from anywhere else', async () => {
+  assert.ok(fs.existsSync(path.join(ROOT, 'fonts/OFL.txt')), 'the SIL Open Font License ships with the font');
+  const { page, errors } = await open(1280, 'today');
+  const requests = [];
+  page.on('request', (r) => requests.push(r.url()));
+  await page.reload(); await page.waitForSelector('#view > *');
+  await page.evaluate(() => document.fonts.ready);
+  assert.equal(await page.evaluate(() => document.fonts.check('16px "DM Sans"')), true, 'DM Sans is loaded');
+  assert.equal(await page.evaluate(() => getComputedStyle(document.querySelector('.tile .num')).fontVariantNumeric), 'tabular-nums');
+  assert.ok(requests.some((u) => u.endsWith('/fonts/dm-sans-latin-wght-normal.woff2')), 'the font comes from the dashboard itself');
+  assert.ok(requests.every((u) => u.startsWith('http://127.0.0.1')), 'no third-party requests');
+  assert.deepEqual(errors, []);
+  await page.close();
+});
+
 async function injectScript(page) {
   return page.evaluate(() => new Promise((resolve) => {
     let blocked = false;
@@ -356,7 +485,11 @@ test('the standalone preview works under its hash-based policy, and still blocks
     await page.goto('file://' + file + '#' + view);
     await page.waitForSelector('#view > *');
     assert.deepEqual(errors, [], `${view}: the preview runs with no policy violations`);
-    if (view === 'today') assert.deepEqual(await injectScript(page), { ran: false, blocked: true });
+    if (view === 'today') {
+      assert.deepEqual(await injectScript(page), { ran: false, blocked: true });
+      await page.evaluate(() => document.fonts.ready);
+      assert.equal(await page.evaluate(() => document.fonts.check('16px "DM Sans"')), true, 'the preview carries its font inside');
+    }
     await page.close();
   }
   fs.unlinkSync(file);

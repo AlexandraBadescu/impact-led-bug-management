@@ -24,17 +24,34 @@ None of these have been done yet. Each says what to check and what passing looks
 
 | Check | How | Pass when | Status |
 |---|---|---|---|
-| VoiceOver on macOS Safari, and on iPhone | Navigate each view by headings, then by tables; open a bug's history | Headings describe each panel; tiles read as title, number, explanation; tables announce headers; the dialog announces its title | Not tested |
-| Keyboard only, whole journey | Unplug the mouse: change each filter, switch views, open and close three bug histories, open "How it's counted" notes | Everything reachable, in a sensible order, with no traps | Not tested (partly covered by the automated focus test) |
+| VoiceOver on macOS Safari, and on iPhone | Navigate each view by headings, then by tables; open a bug's history | Headings describe each panel; tiles read as title, number, explanation; tables announce headers; the dialog announces its title | Issues found, to fix in a future iteration (see below) |
+| Keyboard only, whole journey | Unplug the mouse: change each filter, switch views, open and close three bug histories, open "How it's counted" notes | Everything reachable, in a sensible order, with no traps | Passed, 1 November 2026 (see below) |
 | Focus order and visibility | Tab through each view at 1280px and 390px | The order follows the layout; the indicator is visible on every background, in light and dark mode | Not tested by a person |
 | Dialog focus | Open a bug history, Tab repeatedly, then Shift+Tab | Focus stays in the dialog until it's closed, then returns to the bug ID | Partly verified (return of focus is automated) |
 | Screen reader announcements | Change a filter with VoiceOver on | The updated view is announced once, not the whole page every time | Not tested |
-| 200% browser zoom | Zoom to 200% in Chrome, Safari and Firefox on a 1280px window | No text cut off, no sideways scrolling, nothing overlapping | Not tested (narrow-width tests are a proxy, not the same thing) |
+| 200% browser zoom | Zoom to 200% in Chrome, Safari and Firefox on a 1280px window | No text cut off, no sideways scrolling, nothing overlapping | Passed in Chrome, Safari and Firefox, 1 November 2026 (see below) |
 | Mobile layout on a real phone | iPhone Safari and an Android phone, portrait and landscape | Tables become cards, filters don't zoom the page, nothing needs sideways scrolling | Not tested on a device |
 | Status without colour | Use a greyscale filter, or read the page as text | Every status (On track, Watch, Off track, Overdue) is readable from its words | Not tested by a person (every status has a text label by design) |
 | Charts without sight | With VoiceOver, read each chart's text alternative and table | The numbers and the point of the chart come across without the picture | Not tested |
 
 When these are done, record the date, browser and version, and what was found, here.
+
+## Results so far
+
+**1 November 2026: VoiceOver on macOS, standalone preview of the dashboard branch.** A first pass found that some text isn't fully or clearly read: parts of the page run together and not all content is identified. These will be addressed in a future iteration. The likely causes, from inspecting the accessibility tree:
+
+- The whole view is a live region, so it may be re-announced on load and after every filter change.
+- Each tile's number is read as a separate bare paragraph, not tied to its heading.
+- Short labels with no separator between them run together, for example "P0 Very high" or "P0 emergency Urgent".
+- Decorative separators are read out, as in "·Developers".
+
+Until then, this check stays failed, not passed.
+
+**1 November 2026: 200% browser zoom in Chrome, Safari and Firefox, standalone preview of the dashboard branch.** Passed: no text cut off, no sideways scrolling, nothing overlapping. Checked by Alexandra Badescu.
+
+**1 November 2026: Safari and Firefox on macOS, standard zoom, This month view.** Found an overlap in both: in "Known urgent bugs accepted at go-live", the narrow "Promised" column wrapped the status pill ("Not done: 9 days overdue") across lines, and the pieces drew over each other. Bug IDs also broke at the hyphen ("BUG-" / "111"). Fixed: pills now wrap as one box, IDs don't break, and the column has a minimum width. A new automated test checks that every status pill, impact tag and priority badge draws as one box, on all views at 390, 1024, 1280 and 1600px. It reproduced the problem in Chromium at 1024px before the fix. Re-checked by Alexandra Badescu in Safari and Firefox on the fixed preview, 1 November 2026: no overlap.
+
+**1 November 2026: keyboard only, standalone preview of the dashboard branch.** Passed: everything reachable, in a sensible order, with no keyboard traps. Checked by Alexandra Badescu. The separate focus order and visibility check (both widths, light and dark mode) and the dialog focus check are recorded on their own rows.
 
 ---
 
