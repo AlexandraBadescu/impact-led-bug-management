@@ -25,7 +25,7 @@ None of these have been done yet. Each says what to check and what passing looks
 | Check | How | Pass when | Status |
 |---|---|---|---|
 | VoiceOver on macOS Safari, and on iPhone | Navigate each view by headings, then by tables; open a bug's history | Headings describe each panel; tiles read as title, number, explanation; tables announce headers; the dialog announces its title | Issues found, to fix in a future iteration (see below) |
-| Keyboard only, whole journey | Unplug the mouse: change each filter, switch views, open and close three bug histories, open "How it's counted" notes | Everything reachable, in a sensible order, with no traps | Not tested (partly covered by the automated focus test) |
+| Keyboard only, whole journey | Unplug the mouse: change each filter, switch views, open and close three bug histories, open "How it's counted" notes | Everything reachable, in a sensible order, with no traps | Passed, 1 November 2026 (see below) |
 | Focus order and visibility | Tab through each view at 1280px and 390px | The order follows the layout; the indicator is visible on every background, in light and dark mode | Not tested by a person |
 | Dialog focus | Open a bug history, Tab repeatedly, then Shift+Tab | Focus stays in the dialog until it's closed, then returns to the bug ID | Partly verified (return of focus is automated) |
 | Screen reader announcements | Change a filter with VoiceOver on | The updated view is announced once, not the whole page every time | Not tested |
@@ -48,6 +48,8 @@ When these are done, record the date, browser and version, and what was found, h
 Until then, this check stays failed, not passed.
 
 **1 November 2026: 200% browser zoom, standalone preview of the dashboard branch.** Passed: no text cut off, no sideways scrolling, nothing overlapping. Checked by Alexandra Badescu.
+
+**1 November 2026: keyboard only, standalone preview of the dashboard branch.** Passed: everything reachable, in a sensible order, with no keyboard traps. Checked by Alexandra Badescu. The separate focus order and visibility check (both widths, light and dark mode) and the dialog focus check are recorded on their own rows.
 
 ---
 
