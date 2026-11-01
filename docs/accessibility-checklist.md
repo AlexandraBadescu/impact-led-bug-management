@@ -29,7 +29,7 @@ None of these have been done yet. Each says what to check and what passing looks
 | Focus order and visibility | Tab through each view at 1280px and 390px | The order follows the layout; the indicator is visible on every background, in light and dark mode | Not tested by a person |
 | Dialog focus | Open a bug history, Tab repeatedly, then Shift+Tab | Focus stays in the dialog until it's closed, then returns to the bug ID | Partly verified (return of focus is automated) |
 | Screen reader announcements | Change a filter with VoiceOver on | The updated view is announced once, not the whole page every time | Not tested |
-| 200% browser zoom | Zoom to 200% in Chrome, Safari and Firefox on a 1280px window | No text cut off, no sideways scrolling, nothing overlapping | Not tested (narrow-width tests are a proxy, not the same thing) |
+| 200% browser zoom | Zoom to 200% in Chrome, Safari and Firefox on a 1280px window | No text cut off, no sideways scrolling, nothing overlapping | Passed, 1 November 2026 (see below) |
 | Mobile layout on a real phone | iPhone Safari and an Android phone, portrait and landscape | Tables become cards, filters don't zoom the page, nothing needs sideways scrolling | Not tested on a device |
 | Status without colour | Use a greyscale filter, or read the page as text | Every status (On track, Watch, Off track, Overdue) is readable from its words | Not tested by a person (every status has a text label by design) |
 | Charts without sight | With VoiceOver, read each chart's text alternative and table | The numbers and the point of the chart come across without the picture | Not tested |
@@ -46,6 +46,8 @@ When these are done, record the date, browser and version, and what was found, h
 - Decorative separators are read out, as in "·Developers".
 
 Until then, this check stays failed, not passed.
+
+**1 November 2026: 200% browser zoom, standalone preview of the dashboard branch.** Passed: no text cut off, no sideways scrolling, nothing overlapping. Checked by Alexandra Badescu.
 
 ---
 
