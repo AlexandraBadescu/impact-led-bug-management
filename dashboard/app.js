@@ -28,7 +28,7 @@
       who: ['Everyone'] },
   };
 
-  const state = { view: 'today', asOf: DATA.asOf, team: '', impact: '' };
+  const state = { view: 'today', asOf: DATA.asOf, team: '', impact: '', showAllActions: false };
   const filter = () => ({ team: state.team, impact: state.impact });
 
   function how(text) { return `<details class="how"><summary>How it's counted</summary><p>${text}</p></details>`; }
@@ -61,7 +61,7 @@
   }
 
   // ---------- SVG charts ----------
-  // Series colours come from a brand-matched categorical palette, checked with a palette tool while building (CSS tokens --c1..--c5, light and dark).
+  // Series colours: CSS tokens --c1..--c5, light and dark, checked for colour-blind separation by tools/check-palette.js.
   // One y-axis only; thin marks; every chart has a legend, a text alternative, a hover readout and a table view.
   const narrow = () => window.innerWidth < 560;
   // Axis tops that halve into whole numbers, so counts never show as 2.5.
@@ -153,9 +153,9 @@
   }
 
   // ---------- Today ----------
-  function actionRow(s) {
+  function actionRow(s, hidden) {
     const why = M.reasons(s).map((x) => `<span class="${/Urgent|past fix|leadership|after 2 days/.test(x) ? 'hot' : ''}">${esc(x)}</span>`).join('');
-    return `<tr><td>${idCell(s)}</td>`
+    return `<tr${hidden ? ' hidden' : ''}><td>${idCell(s)}</td>`
       + `<td data-label="Team">${esc(s.team)}${s.assignee ? ` · ${esc(s.assignee)}` : ''}</td>`
       + `<td data-label="Impact"><span class="pi">${prio(s.priority)}${tag(s.impact)}<span class="age">${s.age} days old</span></span></td>`
       + `<td class="n hide-sm">${s.age}d</td><td data-label="Why"><div class="why">${why}</div></td>`
@@ -190,11 +190,25 @@
     const statuses = M.byStatus(t.open);
     const counts = M.countByLevel(t.open);
     const impacts = LV.map(([l, c]) => ({ label: lvName(l), cls: 's-' + c, count: counts[l] }));
-    const rows = t.queue.map(actionRow).join('');
+    // The most urgent few are always on screen; the rest are one click away, so the list starts short.
+    const TOP = 5, extra = Math.max(0, t.queue.length - TOP);
+    const rows = t.queue.map((s, i) => actionRow(s, i >= TOP && !state.showAllActions)).join('');
+    const toggle = extra ? `<button type="button" class="linkbtn" id="toggle-actions" aria-controls="action-table" aria-expanded="${state.showAllActions ? 'true' : 'false'}">${state.showAllActions ? `Show only the top ${TOP}` : `Show all ${t.queue.length} bugs (${extra} more)`}</button>` : '';
     return `
     <div class="tiles">
       ${todayTiles(t)}
     </div>
+    <section class="panel">
+      <h2>The action list</h2>
+      <p class="help">${plural(t.queue.length, 'bug')} need something, in the order developers pick up work: P0 emergencies first, then bugs not yet triaged (they could be emergencies), then agreed P1 work, then decisions that are due. Select a bug ID to see its history.</p>
+      <div class="table-wrap"><table class="stack" id="action-table">
+        <caption class="sr">Bugs that need action, with the reason and the next step</caption>
+        <thead><tr><th scope="col">Bug</th><th scope="col">Team · assignee</th><th scope="col">Priority · impact</th><th scope="col" class="n hide-sm">Age</th><th scope="col">Why it's here</th><th scope="col">Next step</th></tr></thead>
+        <tbody>${rows || '<tr><td colspan="6">Nothing needs action. Good day.</td></tr>'}</tbody>
+      </table></div>
+      ${toggle}
+    </section>
+    <details class="explore"><summary><span class="explore-title">Explore the open backlog</span><span class="explore-sub">Six panels: state, impact, reproducibility, team review, team load and missing information</span></summary>
     <div class="grid2">
       <section class="panel">
         <h2>What state are open bugs in?</h2>
@@ -223,15 +237,6 @@
         ${tableView('Open bugs by team review', ['Reviewed?', 'Bugs'], t.reviewed.map((x) => [x.label, x.count]))}
       </section>
     </div>
-    <section class="panel">
-      <h2>The action list</h2>
-      <p class="help">${plural(t.queue.length, 'bug')} need something, in the order developers pick up work: P0 emergencies first, then bugs not yet triaged (they could be emergencies), then agreed P1 work, then decisions that are due. Select a bug ID to see its history.</p>
-      <div class="table-wrap"><table class="stack">
-        <caption class="sr">Bugs that need action, with the reason and the next step</caption>
-        <thead><tr><th scope="col">Bug</th><th scope="col">Team · assignee</th><th scope="col">Priority · impact</th><th scope="col" class="n hide-sm">Age</th><th scope="col">Why it's here</th><th scope="col">Next step</th></tr></thead>
-        <tbody>${rows || '<tr><td colspan="6">Nothing needs action. Good day.</td></tr>'}</tbody>
-      </table></div>
-    </section>
     <div class="grid2">
       <section class="panel">
         <h2>Is any team taking on too much?</h2>
@@ -243,7 +248,8 @@
         <p class="help">A bug can't be prioritised without an impact score and an agreed priority, and a deferral needs a reason and a review date. The owner is always the team whose board the bug is on, so it's never missing.</p>
         ${bars(t.missing.map((m) => ({ label: m.field, count: m.count })))}
       </section>
-    </div>`;
+    </div>
+    </details>`;
   }
 
   // ---------- This week ----------
@@ -280,6 +286,7 @@
         <p class="take">${late ? `${plural(late, 'urgent bug')} still open and past target. They aren't in the medians above, which only cover finished work.` : 'No urgent bugs are open and past target.'}</p>
       </section>
     </div>
+    <details class="explore"><summary><span class="explore-title">Where bugs come from, and where they sit</span><span class="explore-sub">Six panels: flow by team, where bugs are caught, causes, prevention, age and hotspots</span></summary>
     <div class="grid2">
       <section class="panel">
         <h2>Where are more bugs coming in than going out?</h2>
@@ -319,7 +326,8 @@
         <p class="help">Open bugs by product area and impact, highest weighted exposure first. An area at the top is a candidate for a focused fix-up or tech debt work.</p>
         ${stacked(hot, 'Open bugs by area and impact', 'Team · area')}
       </section>
-    </div>`;
+    </div>
+    </details>`;
   }
 
   // ---------- This month ----------
@@ -493,8 +501,9 @@
     const m = M.month(DATA.issues, state.asOf, filter(), DATA);
     const sum = M.summary(DATA.issues, state.asOf, filter(), DATA);
     const ai = M.aiHelp(DATA.issues, state.asOf, filter());
-    return [summaryPanel(sum), `<div class="goals">${m.goals.map(goalCard).join('')}</div>`, exposurePanels(m), risksPanel(m), aiPanel(ai),
-      signOffPanel(m), sharePanel(m, !!(state.team || state.impact))].join('\n');
+    const more = [exposurePanels(m), aiPanel(ai), sharePanel(m, !!(state.team || state.impact))].join('\n');
+    return [summaryPanel(sum), `<div class="goals">${m.goals.map(goalCard).join('')}</div>`, risksPanel(m), signOffPanel(m),
+      `<details class="explore"><summary><span class="explore-title">Explore the trends</span><span class="explore-sub">Weighted exposure over time, open bugs by team, "Is AI helping?" and the share of work spent on bugs</span></summary>\n${more}\n</details>`].join('\n');
   }
 
   // ---------- How it works ----------
@@ -676,9 +685,6 @@
   }
   function fromHash() { const h = location.hash.slice(1); state.view = VIEWS[h] ? h : 'today'; render(); }
 
-  // Visual variant: ?palette=sage shows variant B (sage and forest); anything else is A (refined aubergine).
-  if (new URLSearchParams(location.search).get('palette') === 'sage') document.documentElement.dataset.palette = 'sage';
-
   const teams = [...new Set(DATA.issues.map((i) => i.team))].sort();
   $('team').insertAdjacentHTML('beforeend', teams.map((t) => `<option>${esc(t)}</option>`).join(''));
   $('asof').value = DATA.asOf; $('asof').max = DATA.asOf; $('asof').min = DATA.issues.map((i) => i.created).sort()[0];
@@ -688,7 +694,10 @@
   $('export').addEventListener('click', exportCsv);
   // The filters never submit anywhere. This replaces an inline onsubmit attribute, which the security policy blocks.
   $('filters').addEventListener('submit', (e) => e.preventDefault());
-  $('view').addEventListener('click', (e) => { const b = e.target.closest('.idbtn'); if (b) openBug(b.dataset.id); });
+  $('view').addEventListener('click', (e) => {
+    const b = e.target.closest('.idbtn'); if (b) openBug(b.dataset.id);
+    if (e.target.closest('#toggle-actions')) { state.showAllActions = !state.showAllActions; render(); $('toggle-actions').focus(); }
+  });
   $('dlg-close').addEventListener('click', () => $('dlg').close());
   // Hover tooltip for chart segments. Each bar also has a text alternative and a table view, so nothing depends on hover.
   const tip = document.createElement('div');

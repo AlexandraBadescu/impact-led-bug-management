@@ -15,12 +15,11 @@ const SCRIPTS = ['data.js', 'metrics.js', 'app.js'];
 const block = (f) => '\n' + fs.readFileSync(path.join(DIR, f), 'utf8') + '\n';
 const hash = (t) => `'sha256-${crypto.createHash('sha256').update(t, 'utf8').digest('base64')}'`;
 
-function build(palette) {
+function build() {
   let html = fs.readFileSync(path.join(DIR, 'index.html'), 'utf8');
   const css = block('styles.css'), js = SCRIPTS.map(block);
   const swap = (from, to) => { if (!html.includes(from)) throw new Error(`index.html no longer contains: ${from}`); html = html.replace(from, () => to); };
   swap('<title>Bug Decisions: demo dashboard</title>', '<title>Bug Decisions: demo dashboard (preview)</title>');
-  if (palette) swap('<html lang="en-GB">', `<html lang="en-GB" data-palette="${palette}">`);
   swap("script-src 'self'; style-src 'self';", `script-src ${js.map(hash).join(' ')}; style-src ${hash(css)};`);
   swap('<link rel="stylesheet" href="styles.css">', `<style>${css}</style>`);
   SCRIPTS.forEach((f, i) => swap(`<script src="${f}"></script>`, `<script>${js[i]}</script>`));
@@ -28,12 +27,9 @@ function build(palette) {
 }
 
 if (require.main === module) {
-  // Usage: node tools/build-preview.js [out.html] [--palette sage]
-  const args = process.argv.slice(2), i = args.indexOf('--palette');
-  const palette = i >= 0 ? args.splice(i, 2)[1] : null;
-  const out = args[0] || path.join(__dirname, '../dist/Bug_Decisions_dashboard_preview.html');
+  const out = process.argv[2] || path.join(__dirname, '../dist/Bug_Decisions_dashboard_preview.html');
   fs.mkdirSync(path.dirname(out), { recursive: true });
-  fs.writeFileSync(out, build(palette));
+  fs.writeFileSync(out, build());
   console.log('Wrote', out);
 }
 module.exports = { build };

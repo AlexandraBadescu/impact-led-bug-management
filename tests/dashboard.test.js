@@ -73,27 +73,26 @@ for (const scheme of SCHEMES) {
   }
 }
 
-// Variant B (sage and forest, ?palette=sage) gets the same automated checks at a phone and a desktop width.
-// Automated checks cover text contrast they can compute; colour-blind separation and the charts still need a person.
-for (const scheme of SCHEMES) {
-  for (const width of [390, 1280]) {
-    test(`sage variant: all views, ${width}px, ${scheme}: no errors, no sideways scrolling, no automated axe WCAG A/AA violations`, async () => {
-      for (const view of VIEWS) {
-        const page = await browser.newPage({ viewport: { width, height: 900 }, colorScheme: scheme });
-        const errors = [];
-        page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
-        await page.goto(URL.replace('index.html', 'index.html?palette=sage') + '#' + view);
-        await page.waitForSelector('#view > *');
-        assert.equal(await page.getAttribute('html', 'data-palette'), 'sage');
-        await page.$$eval('details', (ds) => ds.forEach((d) => { d.open = true; }));
-        assert.ok(await overflow(page) <= 0, `${view}: sideways scrolling`);
-        assert.deepEqual(await axe(page), [], `${view}: accessibility violations`);
-        assert.deepEqual(errors, [], `${view}: errors`);
-        await page.close();
-      }
-    });
-  }
-}
+test('the action list starts with the 5 most urgent bugs; the rest are one keyboard-reachable click away', async () => {
+  const { page, errors } = await open(1280, 'today');
+  const visible = () => page.$$eval('#action-table tbody tr', (rs) => rs.filter((r) => !r.hidden && r.offsetParent !== null).length);
+  assert.equal(await visible(), 5);
+  const btn = page.locator('#toggle-actions');
+  assert.equal(await btn.getAttribute('aria-expanded'), 'false');
+  assert.match(await btn.textContent(), /Show all 17 bugs \(12 more\)/);
+  await btn.focus();
+  await page.keyboard.press('Enter');
+  assert.equal(await visible(), 17);
+  assert.equal(await page.locator('#toggle-actions').getAttribute('aria-expanded'), 'true');
+  assert.equal(await page.evaluate(() => document.activeElement.id), 'toggle-actions', 'focus stays on the button');
+  await page.keyboard.press('Enter');
+  assert.equal(await visible(), 5);
+  assert.deepEqual(errors, []);
+  await page.close();
+  const phone = await open(390, 'today');
+  assert.equal(await phone.page.$$eval('#action-table tbody tr', (rs) => rs.filter((r) => getComputedStyle(r).display !== 'none').length), 5, 'phones too, where rows are cards');
+  await phone.page.close();
+});
 
 test('help text: one sentence at a glance, the rest under "More about this panel"', async () => {
   const { page } = await open(1280, 'week');
@@ -143,7 +142,7 @@ test('no sideways scrolling with a wide font, as on Linux, at 280px and with wid
 test('tables render as readable tables on wide screens and as cards on phones', async () => {
   for (const [view, sel] of [['today', '#view table.stack'], ['month', '#view table.stack']]) {
     const wide = await open(1280, view);
-    const t = await wide.page.$eval(sel, (el) => ({ display: getComputedStyle(el).display, rows: el.tBodies[0].rows.length, h: el.getBoundingClientRect().height, firstRow: el.tBodies[0].rows[0].getBoundingClientRect().height }));
+    const t = await wide.page.$eval(sel, (el) => ({ display: getComputedStyle(el).display, rows: [...el.tBodies[0].rows].filter((r) => !r.hidden).length, h: el.getBoundingClientRect().height, firstRow: el.tBodies[0].rows[0].getBoundingClientRect().height }));
     assert.equal(t.display, 'table', `${view}: the table is laid out as a table`);
     assert.ok(t.firstRow >= 30, `${view}: rows are readable (first row ${t.firstRow}px)`);
     assert.ok(t.h >= t.rows * 30, `${view}: the table isn't squashed (${t.h}px for ${t.rows} rows)`);
@@ -179,17 +178,24 @@ test('every chart has a text alternative, a legend and a table view, and shows a
   }
 });
 
-test('Today shows the charts first, then the action list; optional panels are marked', async () => {
+test('each view leads with what to act on; the supporting panels are one click away under "Explore"', async () => {
   const { page } = await open(1280, 'today');
-  const order = await page.$$eval('#view h2', (hs) => hs.map((h) => h.textContent.trim()));
-  const at = (t) => order.findIndex((h) => h.startsWith(t));
+  const top = await page.$$eval('#view > section h2, #view > .tiles h2', (hs) => hs.map((h) => h.textContent.trim()));
+  assert.ok(top.includes('The action list'), 'the action list is at the top level, right after the tiles');
+  const hidden = await page.$$eval('#view details.explore:not([open]) .panel h2', (hs) => hs.map((h) => h.textContent.trim()));
   for (const chart of ['What state are open bugs in?', 'How serious are open bugs?', 'Can we reproduce them?', 'Has the team reviewed them?']) {
-    assert.ok(at(chart) >= 0 && at(chart) < at('The action list'), `${chart} comes before the action list`);
+    assert.ok(hidden.some((h) => h.startsWith(chart)), `${chart} is under Explore, closed by default`);
   }
   await page.close();
   const w = await open(1280, 'week');
   assert.equal(await w.page.textContent('h2:has-text("Where are bugs caught?") .optional'), 'Optional');
+  assert.equal(await w.page.locator('#view > .grid2 h2:has-text("Bug trends")').count(), 1, 'trends stay at a glance');
   await w.page.close();
+  const m = await open(1280, 'month');
+  const glance = await m.page.$$eval('#view > section h2', (hs) => hs.map((h) => h.textContent.trim()));
+  assert.deepEqual(glance, ['This month in three questions', 'Which risks have we chosen to carry?', 'Known urgent bugs accepted at go-live'],
+    'leadership sees decisions, goals, risks and promises first');
+  await m.page.close();
 });
 
 test('the reference page and footer say the strategy is comprehensive and should be simplified', async () => {

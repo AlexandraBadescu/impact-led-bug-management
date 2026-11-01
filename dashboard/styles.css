@@ -1,30 +1,30 @@
 /* © 2026 Alexandra Badescu. Licensed under CC BY-NC-ND 4.0 (see LICENSE). */
 :root {
   color-scheme: light dark;
-  --ink: #241726;
-  --muted: #5d4f60;
-  --line: #e4dbe6;
-  --bg: #f6f2f7;
-  --card: #ffffff;
-  --field: #ffffff;
-  --field-line: #8f7f93;
-  --brand: #2b1a2e;
-  --brand-ink: #f7eff8;
-  --accent: #a83565;        /* rose, AA on white */
-  --accent-soft: #fbe9f1;
-  --plum: #5b2f63;
-  --plum-soft: #efe4f2;
-  --btn: #5b2f63; --btn-ink: #ffffff;
-  --chip: #f1ecf2;
-  --track: #efe7f1;
-  --ok: #1f6b3a;  --ok-soft: #e3f3e8;
-  --warn: #8a5300; --warn-soft: #fdf1dc; --warn-line: #efd29f;
-  --bad: #a3242f; --bad-soft: #fbe5e6; --bad-line: #efb9bd; --bad-ink: #ffffff;
+  --ink: #1f2e25;
+  --muted: #4a5a50;
+  --line: #e3ded4;
+  --bg: #f7f3ee;
+  --card: #fffdf9;
+  --field: #fffdf9;
+  --field-line: #7b877e;
+  --brand: #283c30;
+  --accent: #a34e48;        /* deeper rose: 5.1:1 on ivory */
+  --accent-soft: #f6e9e4;
+  --plum: #2f5a43;
+  --plum-soft: #e2ebe3;
+  --btn: #283c30; --btn-ink: #ffffff;
+  --chip: #eceee7;
+  --track: #ebe7df;
+  --ok: #2c6a43;  --ok-soft: #e2efe5;
+  --warn: #855600; --warn-soft: #fbf0db; --warn-line: #e3c88f;
+  --bad: #9e2f2a; --bad-soft: #f8e4e1; --bad-line: #e6b3ad; --bad-ink: #ffffff;
   --low: #3f4650; --low-soft: #eef0f2; --low-line: #d4d8dd;
-  --zero: #8a7c8d;
-  --heat1: #f5edf6; --heat2: #e6d3ea; --heat3: #cfb0d6;
-  --c1: #7a3f88; --c2: #1f8a70; --c3: #c98500; --c4: #d1495b; --c5: #2a78d6; /* categorical palette, light: checked with a palette tool while building (not in this repo) */
-  --seq-l: #c49ccd; --seq-m: #9a62a7; --seq-h: #6a3577; --seq-vh: #3a1744; /* validated ordinal ramp, light */
+  --zero: #84907f;
+  --heat1: #eef3ee; --heat2: #dae6db; --heat3: #bcd2c0;
+  --c1: #243c30; --c2: #af8b3d; --c3: #a64d3b; --c4: #466188; --c5: #a578c2; /* categorical: checked by tools/check-palette.js */
+  --seq-l: #c6d8c9; --seq-m: #8db098; --seq-h: #4d7a5d; --seq-vh: #22402f; /* ordinal ramp: checked by tools/check-palette.js */
+  --side-bg: #e6ede6; --side-ink: #1f2e25; --side-muted: #45534a; --side-line: #b9c8bc; --side-active: #fffdf9; --side-marker: #a34e48;
   --focus: #1b5fd6;
   --radius: 12px;
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -33,29 +33,30 @@
 }
 @media (prefers-color-scheme: dark) {
   :root {
-    --ink: #f3eaf4;
-    --muted: #c8b6cb;
-    --line: #463648;
-    --bg: #18101b;
-    --card: #231826;
-    --field: #2c2030;
-    --field-line: #8d7a91;
-    --brand: #120a14;
-    --accent: #f39cc2;
-    --accent-soft: #3b2230;
-    --plum: #e1b6ea;
-    --plum-soft: #3a2840;
-    --btn: #e1b6ea; --btn-ink: #1d1220;
-    --chip: #33263a;
-    --track: #3a2c3e;
-    --ok: #8fd8a8;  --ok-soft: #173325;
-    --warn: #f3c46e; --warn-soft: #3a2b12; --warn-line: #6b5120;
-    --bad: #ff9ea7; --bad-soft: #3e1b21; --bad-line: #6e2f37; --bad-ink: #2a0b10;
+    --ink: #eef1ea;
+    --muted: #b9c4bb;
+    --line: #34433a;
+    --bg: #141c17;
+    --card: #1b251f;
+    --field: #212d26;
+    --field-line: #7d8b80;
+    --brand: #e9efe6;
+    --accent: #e8a59c;
+    --accent-soft: #3a2522;
+    --plum: #a9d3b7;
+    --plum-soft: #24352b;
+    --btn: #a9d3b7; --btn-ink: #13201a;
+    --chip: #24312a;
+    --track: #2a3830;
+    --ok: #8fd3a5;  --ok-soft: #173325;
+    --warn: #f0c46e; --warn-soft: #3a2b12; --warn-line: #6b5120;
+    --bad: #ff9e96; --bad-soft: #3e1d1b; --bad-line: #6e302c; --bad-ink: #2a0b0a;
     --low: #d5d9de; --low-soft: #2e3238; --low-line: #4a5058;
-    --zero: #9a8a9d;
-    --heat1: #33243a; --heat2: #4c3354; --heat3: #6a4775;
-    --c1: #a874d8; --c2: #22a382; --c3: #b98218; --c4: #e8606f; --c5: #3d8be0; /* validated categorical palette, dark */
-    --seq-l: #6e4a78; --seq-m: #9a6aa6; --seq-h: #c895d3; --seq-vh: #f0d6f5; /* validated ordinal ramp, dark */
+    --zero: #8f9b92;
+    --heat1: #213028; --heat2: #2f4638; --heat3: #42614d;
+    --c1: #8ed8b4; --c2: #daa664; --c3: #bd6265; --c4: #3f7cc4; --c5: #c9b2d9; /* categorical, dark */
+    --seq-l: #3b5446; --seq-m: #6f9a7c; --seq-h: #a8cdb2; --seq-vh: #e2efe4; /* ordinal ramp, dark: stronger = brighter */
+    --side-bg: #18211b; --side-ink: #eef1ea; --side-muted: #b9c4bb; --side-line: #3f5045; --side-active: #212d26; --side-marker: #e8a59c;
     --focus: #8fb4ff;
   }
 }
@@ -71,25 +72,26 @@ main:focus { outline: none; }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 .layout { display: grid; grid-template-columns: 250px minmax(0, 1fr); min-height: 100vh; }
-.side { background: var(--brand); color: var(--brand-ink); padding: 24px 18px; }
-.brand { font-size: 1.35rem; font-weight: 800; margin: 0; letter-spacing: -0.01em; }
-.brand span { color: #f2a7c6; }
-.tagline { margin: 2px 0 22px; font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: #d9c8dc; }
+.side { background: var(--side-bg); color: var(--side-ink); border-right: 1px solid var(--line); padding: 24px 18px; }
+.brand { font-size: 1.35rem; font-weight: 800; margin: 0; letter-spacing: -0.01em; color: var(--side-ink); }
+.brand span { color: var(--side-marker); }
+.tagline { margin: 2px 0 22px; font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--side-muted); }
 .nav { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
 .nav li { display: flex; }
 .nav li a { flex: 1; }
-.nav a { display: flex; flex-direction: column; justify-content: center; position: relative; padding: 10px 30px 10px 12px; border-radius: 10px; color: var(--brand-ink); text-decoration: none;
-  background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.28); }
-.nav a::after { content: "›"; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 1.3rem; color: #d9c8dc; }
-.nav a small { display: block; color: #cdbad1; font-size: 0.78rem; }
-.nav a:hover { background: rgba(255, 255, 255, 0.14); border-color: #f2a7c6; }
-.nav a[aria-current="page"] { background: #f2a7c6; border-color: #f2a7c6; color: var(--brand); font-weight: 700; }
-.nav a[aria-current="page"] small { color: #4a2d4f; font-weight: 400; }
-.nav a[aria-current="page"]::after { content: "●"; font-size: 0.6rem; color: var(--brand); }
-.note { margin-top: 22px; border: 1px solid #5a425d; border-radius: 10px; padding: 12px; font-size: 0.82rem; color: #e8dcea; }
-.note strong { display: block; color: #fff; margin-bottom: 2px; }
-.byline { margin-top: 18px; font-size: 0.82rem; color: #d9c8dc; }
-.byline a { color: #f6c5da; }
+/* Every view keeps an outline and an arrow, so the options read as choices (1.0 test report, B6). */
+.nav a { display: flex; flex-direction: column; justify-content: center; position: relative; padding: 10px 30px 10px 12px; border-radius: 10px; color: var(--side-ink); text-decoration: none;
+  background: transparent; border: 1px solid var(--side-line); }
+.nav a::after { content: "›"; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 1.3rem; color: var(--side-muted); }
+.nav a small { display: block; color: var(--side-muted); font-size: 0.78rem; }
+.nav a:hover { background: var(--side-active); border-color: var(--side-marker); }
+.nav a[aria-current="page"] { background: var(--side-active); border-color: var(--side-marker); color: var(--side-ink); font-weight: 700; box-shadow: inset 4px 0 0 var(--side-marker); }
+.nav a[aria-current="page"] small { color: var(--side-muted); font-weight: 400; }
+.nav a[aria-current="page"]::after { content: "●"; font-size: 0.6rem; color: var(--side-marker); }
+.note { margin-top: 22px; border: 1px solid var(--side-line); border-radius: 10px; padding: 12px; font-size: 0.82rem; color: var(--side-muted); }
+.note strong { display: block; color: var(--side-ink); margin-bottom: 2px; }
+.byline { margin-top: 18px; font-size: 0.82rem; color: var(--side-muted); }
+.byline a { color: var(--side-ink); }
 
 main { padding: 28px clamp(16px, 3vw, 36px) 40px; min-width: 0; }
 .eyebrow { margin: 0; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
@@ -104,10 +106,10 @@ h1 { margin: 4px 0 6px; font-size: clamp(1.6rem, 3vw, 2.2rem); line-height: 1.15
 .filters input, .filters select, button { font: inherit; font-size: 0.9rem; padding: 7px 10px; border: 1px solid var(--field-line); border-radius: 8px; background-color: var(--field); color: var(--ink); min-height: 38px; }
 button { cursor: pointer; }
 select { appearance: none; -webkit-appearance: none; padding-right: 34px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%235b2f63' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%232f5a43' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   background-repeat: no-repeat; background-position: right 12px center; background-size: 12px 8px; }
 @media (prefers-color-scheme: dark) {
-  select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%23e1b6ea' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); }
+  select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%23a9d3b7' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); }
 }
 .filters label { width: 13rem; }
 .filters input, .filters select { width: 100%; height: 40px; }
@@ -344,74 +346,9 @@ th code { font-size: 0.8rem; font-weight: 600; }
 .disclaimer { border-left: 4px solid var(--accent); }
 .disclaimer p { margin: 6px 0 0; }
 
-/* ===== Visual variants (branch dashboard-visual-variants) =====
-   Same layout and content in both; only colour tokens differ.
-   A, "refined aubergine": the default. B, "sage and forest": <html data-palette="sage"> (?palette=sage). */
-
-/* Sidebar tokens. A: light lilac-ivory with aubergine ink and a rose marker. */
-:root { --side-bg: #f3edf4; --side-ink: #2b1a2e; --side-muted: #594b5c; --side-line: #cbbccd; --side-active: #ffffff; --side-marker: #a83565; }
-@media (prefers-color-scheme: dark) {
-  :root { --side-bg: #1d1420; --side-ink: #f3eaf4; --side-muted: #c8b6cb; --side-line: #5a465d; --side-active: #2c2030; --side-marker: #f39cc2; }
-}
-
-/* B: sage and forest, with the deeper rose (#a34e48, 5.1:1 on ivory) and gold kept for decoration only.
-   The chart colours below follow the same rules (distinct lightness, stronger = darker in light mode) but have not
-   been through the palette tool the A colours were checked with. */
-:root[data-palette="sage"] {
-  --ink: #1f2e25; --muted: #4a5a50; --line: #e3ded4; --bg: #f7f3ee; --card: #fffdf9; --field: #fffdf9; --field-line: #7b877e;
-  --brand: #283c30; --brand-ink: #f7f3ee;
-  --accent: #a34e48; --accent-soft: #f6e9e4;
-  --plum: #2f5a43; --plum-soft: #e2ebe3;
-  --btn: #283c30; --btn-ink: #ffffff;
-  --chip: #eceee7; --track: #ebe7df;
-  --ok: #2c6a43; --ok-soft: #e2efe5;
-  --warn: #855600; --warn-soft: #fbf0db; --warn-line: #e3c88f;
-  --bad: #9e2f2a; --bad-soft: #f8e4e1; --bad-line: #e6b3ad; --bad-ink: #ffffff;
-  --zero: #84907f;
-  --heat1: #eef3ee; --heat2: #dae6db; --heat3: #bcd2c0;
-  --c1: #2f6b4f; --c2: #b1544c; --c3: #a8761a; --c4: #3c6e91; --c5: #7b5287;
-  --seq-l: #c6d8c9; --seq-m: #8db098; --seq-h: #4d7a5d; --seq-vh: #22402f;
-  --side-bg: #e6ede6; --side-ink: #1f2e25; --side-muted: #45534a; --side-line: #b9c8bc; --side-active: #fffdf9; --side-marker: #a34e48;
-}
-@media (prefers-color-scheme: dark) {
-  :root[data-palette="sage"] {
-    --ink: #eef1ea; --muted: #b9c4bb; --line: #34433a; --bg: #141c17; --card: #1b251f; --field: #212d26; --field-line: #7d8b80;
-    --brand: #e9efe6; --brand-ink: #141c17;
-    --accent: #e8a59c; --accent-soft: #3a2522;
-    --plum: #a9d3b7; --plum-soft: #24352b;
-    --btn: #a9d3b7; --btn-ink: #13201a;
-    --chip: #24312a; --track: #2a3830;
-    --ok: #8fd3a5; --ok-soft: #173325;
-    --warn: #f0c46e; --warn-soft: #3a2b12; --warn-line: #6b5120;
-    --bad: #ff9e96; --bad-soft: #3e1d1b; --bad-line: #6e302c; --bad-ink: #2a0b0a;
-    --zero: #8f9b92;
-    --heat1: #213028; --heat2: #2f4638; --heat3: #42614d;
-    --c1: #7cc39d; --c2: #ef8f86; --c3: #d9a94a; --c4: #7fb2d8; --c5: #c39bd1;
-    --seq-l: #3b5446; --seq-m: #6f9a7c; --seq-h: #a8cdb2; --seq-vh: #e2efe4;
-    --side-bg: #18211b; --side-ink: #eef1ea; --side-muted: #b9c4bb; --side-line: #3f5045; --side-active: #212d26; --side-marker: #e8a59c;
-  }
-}
-:root[data-palette="sage"] select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%232f5a43' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); }
-@media (prefers-color-scheme: dark) {
-  :root[data-palette="sage"] select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%23a9d3b7' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); }
-}
-
-/* A lighter sidebar. Every view keeps an outline and an arrow, so the options still read as choices
-   (the 1.0 test report, B6: unselected views that looked like plain text were missed). */
-.side { background: var(--side-bg); color: var(--side-ink); border-right: 1px solid var(--line); }
-.brand { color: var(--side-ink); }
-.brand span { color: var(--side-marker); }
-.tagline, .byline { color: var(--side-muted); }
-.byline a { color: var(--side-ink); }
-.nav a { background: transparent; border: 1px solid var(--side-line); color: var(--side-ink); }
-.nav a small { color: var(--side-muted); }
-.nav a::after { color: var(--side-muted); }
-.nav a:hover { background: var(--side-active); border-color: var(--side-marker); }
-.nav a[aria-current="page"] { background: var(--side-active); border-color: var(--side-marker); color: var(--side-ink); box-shadow: inset 4px 0 0 var(--side-marker); }
-.nav a[aria-current="page"] small { color: var(--side-muted); }
-.nav a[aria-current="page"]::after { color: var(--side-marker); }
-.note { border-color: var(--side-line); color: var(--side-muted); }
-.note strong { color: var(--side-ink); }
+/* ===== Sage and forest, with a calmer layout =====
+   Colours: ivory, sage and forest, with a deeper rose (#a34e48, 5.1:1 on ivory) for links and markers.
+   Gold is decoration only. Status never relies on colour alone (see the end of this file). */
 
 /* Quieter surfaces: more space, fewer filled boxes. */
 .tiles, .goals { gap: 16px; margin-bottom: 20px; }
@@ -427,3 +364,18 @@ details.more p { margin: 6px 0 0; }
 /* Status that doesn't rely on colour: Off track is solid, Watch is tinted, On track is an outline. */
 .status.on { background: transparent; box-shadow: inset 0 0 0 1.5px var(--ok); }
 .status.off { background: var(--bad); color: var(--bad-ink); }
+
+/* "Explore": the second level of each view. Closed by default, one click to open; nothing inside is removed. */
+details.explore { margin: 6px 0 18px; border-top: 1px solid var(--line); padding-top: 14px; }
+details.explore > summary { cursor: pointer; list-style: none; display: grid; gap: 2px; padding: 10px 14px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--card); }
+details.explore > summary::-webkit-details-marker { display: none; }
+details.explore > summary .explore-title { font-weight: 700; color: var(--plum); }
+details.explore > summary .explore-title::before { content: "▸ "; }
+details.explore[open] > summary .explore-title::before { content: "▾ "; }
+details.explore > summary .explore-sub { font-size: 0.85rem; color: var(--muted); }
+details.explore[open] > summary { margin-bottom: 16px; }
+
+/* The action list's extra rows: hidden until asked for, even where table rows become cards on phones. */
+.stack tr[hidden] { display: none !important; }
+.linkbtn { margin-top: 10px; background: transparent; border: 1px solid var(--field-line); color: var(--plum); font-weight: 600; border-radius: 8px; min-height: 40px; }
+.linkbtn:hover { border-color: var(--plum); }

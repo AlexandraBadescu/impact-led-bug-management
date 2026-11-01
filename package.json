@@ -9,7 +9,8 @@
     "check:draft": "node tools/check-bug-draft.js",
     "validate": "node tools/validate-data.js",
     "eval": "node tools/eval-bug-drafts.js",
-    "preview": "node tools/build-preview.js"
+    "preview": "node tools/build-preview.js",
+    "palette": "node tools/check-palette.js"
   },
   "devDependencies": {
     "axe-core": "4.10.2",
