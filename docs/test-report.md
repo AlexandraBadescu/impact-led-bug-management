@@ -7,7 +7,7 @@ This report covers version 1.2. It has three jobs: to show what was tested, to b
 | **Date** | 1 November 2026 |
 | **Version** | 1.2.0 |
 | **Tools** | Node.js test runner, Playwright 1.63.0 (Chromium here; WebKit and Firefox in CI), axe-core 4.10.2 |
-| **Result** | 239 tests: 237 pass in Chromium. The 2 skipped are the Firefox and WebKit (Safari) tests, which need those browsers; CI installs them and requires both to pass. |
+| **Result** | 240 tests. In [CI on 1 November 2026](https://github.com/AlexandraBadescu/impact-led-bug-management/actions/runs/41299093062): 240 pass, including Firefox and WebKit (Safari). Locally, where only Chromium is installed: 238 pass and those 2 are skipped. |
 
 ## What reviewing my own framework found
 
@@ -38,6 +38,7 @@ The second round found subtler problems than the first, which is roughly what yo
 | V11 | The validator missed duplicate IDs, dated fields that didn't match their event, closures with no date and mitigations with no type, and 8 of its rules had no negative test | **Low** | Review, then my own audit | 17 new rules; every rule now has its own negative test |
 | V12 | Leadership time was "10 minutes a month", and role-guide times were stated as facts and disagreed with each other | **Low** | Review | Labelled as planning assumptions and aligned with the [rollout plan](rollout-plan.md) |
 | V13 | The docs said chart colours were checked with a "palette validator"; it isn't in the repo, so nobody can re-run it | **Low** | My own audit | Reworded to say what it was and that it can't be reproduced here |
+| V14 | I published 1.2 with CI red. The first CI run, on the Linux runner, found "How it works" 12px too wide at 280px: its fonts are wider than the ones on my machine, and the new "Weighted exposure" term no longer fitted beside its definition. Every local run had passed | **Medium** | CI, the first time it ran | The glossary stacks on narrow screens; a new test checks every view with a deliberately wide font, so a local run catches what Linux sees. Lesson: "CI will run it" isn't the same as "CI passed", so the gate now records the run |
 
 ### Version 1.0 to 1.1
 
@@ -76,7 +77,7 @@ Every claim the project makes, what would prove it, and where it stands now.
 | The Jira setup makes the process run by itself | Filters and validators working on a real Jira site | Documented; parity tests check the text against the dashboard's rules; an export contract is documented | **Not implemented**: never run on Jira; no export exists |
 | The approach improved a real team | Real before-and-after data | My experience in a previous role, stated as such, with its limits | **Not demonstrated here**; details awaiting author input (timeframe, team size, starting point) |
 | The dashboard is accessible | Automated and manual checks | axe-core rules at 8 widths in light and dark mode, keyboard, focus and text-spacing tests in Chromium | **Partially verified**: automated checks pass; every manual check in the [accessibility checklist](accessibility-checklist.md) is still **Not tested** |
-| It works across browsers | Chromium, Firefox and WebKit runs | Chromium here; Firefox and WebKit tests exist and CI requires them | **Partially verified** until a CI run is green |
+| It works across browsers | Chromium, Firefox and WebKit runs | [CI run](https://github.com/AlexandraBadescu/impact-led-bug-management/actions/runs/41299093062): every view fits and runs without errors in all three | **Verified** in CI for layout and errors; a check on a real iPhone isn't done |
 
 ## How I know the tests can fail
 
@@ -92,6 +93,7 @@ A green suite only means something if breaking the rules turns it red. So I put 
 | One shared random sequence | The generator drift test |
 | "Needs a plan" at day N instead of from day N + 1 | 3 deadline boundary tests |
 | The date field's focus style, and the dialog placeholder | Both tests failed before the fix and pass after it (written first, then fixed) |
+| The glossary's old two-column layout, with a wide font | The new wide-font test fails (12px too wide at 280px), matching what CI found |
 | **1.0 → 1.1** | |
 | The share of work filtered by month instead of report date | 4: history at 26 August, 1 October and 15 October, and the 1 October check |
 | G1's status from the rate alone | 2: the demo headline numbers, and "a perfect rate cannot hide overdue bugs" |
@@ -112,8 +114,8 @@ On top of that, each of the 48 negative cases for the data validator and the 18 
 | Overdue, deferred and accepted risks can't disappear from reporting | **Verified** | Scenario, accepted-risk and KPI tests |
 | Past dates can't reveal later information | **Verified** | Cut-off comparison at 7 dates and 3 filters; browser history test |
 | Broken business rules are caught by negative tests | **Verified** | The table above |
-| Automated tests pass in Chromium | **Verified** | `npm test`: 237 passed, 0 failed, 2 skipped (Firefox, WebKit) |
-| Firefox and WebKit | **Not tested** here | Tests exist and CI requires them on every push: the result is on the repository's Actions tab |
+| Automated tests pass | **Verified** | [CI run](https://github.com/AlexandraBadescu/impact-led-bug-management/actions/runs/41299093062): 240 of 240 passed, in Chromium, Firefox and WebKit. The first two runs after release failed (V14) |
+| Firefox and WebKit | **Verified** in CI | Same run. Layout, errors and filter alignment only; axe-core runs in Chromium |
 | Automated accessibility checks pass | **Verified** | 64 axe-core runs, plus keyboard, focus and text-spacing tests |
 | Manual accessibility checks (screen reader, 200% zoom, real devices) | **Not tested** | [Accessibility checklist](accessibility-checklist.md) |
 | The standalone preview matches the repo and works under its own security policy | **Verified** | A test builds it, checks every inline block is listed by hash, and loads every view with no policy violations |
@@ -133,7 +135,7 @@ On top of that, each of the 48 negative cases for the data validator and the 18 
 | **Calculations** (`tests/metrics.test.js`) | 40 | Each playbook rule, with deadline boundaries one day before, on and after every limit; deferrals without a reason or date; escalation pending versus decided; accepted risks keeping their review date; history (a bug not yet scored has no impact); the AI outcome rate; weighted exposure; the demo's headline numbers; the data regenerates exactly; changing one bug never moves another |
 | **Scenarios and reporting integrity** (`tests/scenarios.test.js`) | 17 | Three bugs traced from defect to decision (a payment incident, a deliberate trade-off, an accessibility risk); every panel compared with data cut off at 7 past dates and 3 filters; overdue urgent bugs can't hide behind a good rate; accepted risks stay visible; filters apply to every panel or the panel says it's organisation-wide; Today and the monthly goals agree |
 | **Data validator** (`tests/validate-data.test.js`) | 50 | The demo data passes; 48 negative cases, one for every rule, each break one record one way (impossible histories, dated fields that don't match their events, duplicate IDs, protection claimed before it existed, sign-offs that don't match their bugs, accepted risks without an owner or review date, figures from the future) and must be caught alone; the command line exits 1 on bad data |
-| **Dashboard** (`tests/dashboard.test.js`) | 85 | All 4 views at 8 widths in light and dark mode: no sideways scrolling, no axe-core WCAG A/AA violations, no errors or policy violations. Plus focus indicators, text spacing, tables and cards, charts, the bug history dialog, filters, the CSV download, the monthly summary on the first screen, history, no inline handlers, a blocked injected script, the standalone preview, and Firefox and WebKit runs (skipped here, required in CI) |
+| **Dashboard** (`tests/dashboard.test.js`) | 86 | All 4 views at 8 widths in light and dark mode: no sideways scrolling, no axe-core WCAG A/AA violations, no errors or policy violations; and every view again with a deliberately wide font, as on Linux. Plus focus indicators, text spacing, tables and cards, charts, the bug history dialog, filters, the CSV download, the monthly summary on the first screen, history, no inline handlers, a blocked injected script, the standalone preview, and Firefox and WebKit runs (skipped here, required in CI) |
 | **AI draft checker** (`tests/check-bug-draft.test.js`) | 23 | A good draft passes; each of 18 problems is caught on its own; a draft written to the human template is caught; the skill, template and checker list the same sections |
 | **AI known-answer cases** (`tests/eval-bug-drafts.test.js`) | 14 | All eight cases exist with a rubric; the checker gives the known answer; the reference answers pass; five kinds of bad answer fail for the right reason |
 | **Docs** (`tests/docs.test.js`) | 10 | Links and anchors; the licence notice; no listed real names or contact details; triage, deferral, accepted-risk and day-counting rules the same in the docs and the code; no overclaiming in the wording |
@@ -232,7 +234,8 @@ These were found and fixed before the review above, while building the first ver
 
 ## Limits
 
-- **Browsers:** Chromium here. Firefox and WebKit (Safari's engine) run in CI only, and a check on a real iPhone is still worth doing.
+- **Browsers:** Chromium locally; Firefox and WebKit (Safari's engine) in CI, where all three pass. A check on a real iPhone is still worth doing.
+- **Fonts:** layout depends on the fonts a machine has. The wide-font test covers the gap between a laptop and the Linux CI runner, but not every font a visitor might have.
 - **Accessibility:** automated checks cover only part of WCAG 2.2 AA. Every manual check in the [accessibility checklist](accessibility-checklist.md) is still to do.
 - **Jira:** the fields, validators and filters are documented and checked as text against the dashboard's rules, but not run on a live Jira site, and there's no export script.
 - **AI skills:** the known-answer cases have hand-written reference answers. No model output has been scored against them from this repo.

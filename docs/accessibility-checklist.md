@@ -14,8 +14,9 @@ What's been checked on the demo dashboard, how, and what hasn't. Automated tools
 | Focus indicator drawn on every keyboard stop on Today and This month | Partly verified | "visible focus indicator" test. It checks an outline is drawn, not that it's easy to see. It found and fixed one gap: the date field's calendar button had no indicator |
 | Bug history dialog: opens with Enter, closes with Escape, focus returns to the bug ID | Verified (Chromium) | "bug history" test. Focus staying inside the dialog while open isn't tested |
 | Every chart has a text alternative with its numbers, a legend and a "Show as a table" view | Verified (Chromium) | "every chart" test |
-| Firefox | Not tested here | The Firefox test exists and runs in CI; Firefox isn't installed in the environment where this checklist was last run |
-| Safari's engine (WebKit) | Not tested here | Runs in CI only |
+| Firefox | Verified in CI (layout and errors) | [CI run](https://github.com/AlexandraBadescu/impact-led-bug-management/actions/runs/41299093062), 1 November 2026. axe-core itself runs in Chromium only |
+| Safari's engine (WebKit) | Verified in CI (layout, errors, filter alignment) | Same run |
+| No sideways scrolling with a wide font, as on Linux | Verified (Chromium) | "wide font" test, added after CI found a 12px overflow at 280px that local runs missed |
 
 ## Manual, still to do
 
