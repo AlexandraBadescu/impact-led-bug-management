@@ -343,3 +343,87 @@ th code { font-size: 0.8rem; font-weight: 600; }
 /* disclaimer on the reference page */
 .disclaimer { border-left: 4px solid var(--accent); }
 .disclaimer p { margin: 6px 0 0; }
+
+/* ===== Visual variants (branch dashboard-visual-variants) =====
+   Same layout and content in both; only colour tokens differ.
+   A, "refined aubergine": the default. B, "sage and forest": <html data-palette="sage"> (?palette=sage). */
+
+/* Sidebar tokens. A: light lilac-ivory with aubergine ink and a rose marker. */
+:root { --side-bg: #f3edf4; --side-ink: #2b1a2e; --side-muted: #594b5c; --side-line: #cbbccd; --side-active: #ffffff; --side-marker: #a83565; }
+@media (prefers-color-scheme: dark) {
+  :root { --side-bg: #1d1420; --side-ink: #f3eaf4; --side-muted: #c8b6cb; --side-line: #5a465d; --side-active: #2c2030; --side-marker: #f39cc2; }
+}
+
+/* B: sage and forest, with the deeper rose (#a34e48, 5.1:1 on ivory) and gold kept for decoration only.
+   The chart colours below follow the same rules (distinct lightness, stronger = darker in light mode) but have not
+   been through the palette tool the A colours were checked with. */
+:root[data-palette="sage"] {
+  --ink: #1f2e25; --muted: #4a5a50; --line: #e3ded4; --bg: #f7f3ee; --card: #fffdf9; --field: #fffdf9; --field-line: #7b877e;
+  --brand: #283c30; --brand-ink: #f7f3ee;
+  --accent: #a34e48; --accent-soft: #f6e9e4;
+  --plum: #2f5a43; --plum-soft: #e2ebe3;
+  --btn: #283c30; --btn-ink: #ffffff;
+  --chip: #eceee7; --track: #ebe7df;
+  --ok: #2c6a43; --ok-soft: #e2efe5;
+  --warn: #855600; --warn-soft: #fbf0db; --warn-line: #e3c88f;
+  --bad: #9e2f2a; --bad-soft: #f8e4e1; --bad-line: #e6b3ad; --bad-ink: #ffffff;
+  --zero: #84907f;
+  --heat1: #eef3ee; --heat2: #dae6db; --heat3: #bcd2c0;
+  --c1: #2f6b4f; --c2: #b1544c; --c3: #a8761a; --c4: #3c6e91; --c5: #7b5287;
+  --seq-l: #c6d8c9; --seq-m: #8db098; --seq-h: #4d7a5d; --seq-vh: #22402f;
+  --side-bg: #e6ede6; --side-ink: #1f2e25; --side-muted: #45534a; --side-line: #b9c8bc; --side-active: #fffdf9; --side-marker: #a34e48;
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-palette="sage"] {
+    --ink: #eef1ea; --muted: #b9c4bb; --line: #34433a; --bg: #141c17; --card: #1b251f; --field: #212d26; --field-line: #7d8b80;
+    --brand: #e9efe6; --brand-ink: #141c17;
+    --accent: #e8a59c; --accent-soft: #3a2522;
+    --plum: #a9d3b7; --plum-soft: #24352b;
+    --btn: #a9d3b7; --btn-ink: #13201a;
+    --chip: #24312a; --track: #2a3830;
+    --ok: #8fd3a5; --ok-soft: #173325;
+    --warn: #f0c46e; --warn-soft: #3a2b12; --warn-line: #6b5120;
+    --bad: #ff9e96; --bad-soft: #3e1d1b; --bad-line: #6e302c; --bad-ink: #2a0b0a;
+    --zero: #8f9b92;
+    --heat1: #213028; --heat2: #2f4638; --heat3: #42614d;
+    --c1: #7cc39d; --c2: #ef8f86; --c3: #d9a94a; --c4: #7fb2d8; --c5: #c39bd1;
+    --seq-l: #3b5446; --seq-m: #6f9a7c; --seq-h: #a8cdb2; --seq-vh: #e2efe4;
+    --side-bg: #18211b; --side-ink: #eef1ea; --side-muted: #b9c4bb; --side-line: #3f5045; --side-active: #212d26; --side-marker: #e8a59c;
+  }
+}
+:root[data-palette="sage"] select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%232f5a43' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); }
+@media (prefers-color-scheme: dark) {
+  :root[data-palette="sage"] select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%23a9d3b7' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); }
+}
+
+/* A lighter sidebar. Every view keeps an outline and an arrow, so the options still read as choices
+   (the 1.0 test report, B6: unselected views that looked like plain text were missed). */
+.side { background: var(--side-bg); color: var(--side-ink); border-right: 1px solid var(--line); }
+.brand { color: var(--side-ink); }
+.brand span { color: var(--side-marker); }
+.tagline, .byline { color: var(--side-muted); }
+.byline a { color: var(--side-ink); }
+.nav a { background: transparent; border: 1px solid var(--side-line); color: var(--side-ink); }
+.nav a small { color: var(--side-muted); }
+.nav a::after { color: var(--side-muted); }
+.nav a:hover { background: var(--side-active); border-color: var(--side-marker); }
+.nav a[aria-current="page"] { background: var(--side-active); border-color: var(--side-marker); color: var(--side-ink); box-shadow: inset 4px 0 0 var(--side-marker); }
+.nav a[aria-current="page"] small { color: var(--side-muted); }
+.nav a[aria-current="page"]::after { color: var(--side-marker); }
+.note { border-color: var(--side-line); color: var(--side-muted); }
+.note strong { color: var(--side-ink); }
+
+/* Quieter surfaces: more space, fewer filled boxes. */
+.tiles, .goals { gap: 16px; margin-bottom: 20px; }
+.grid2 { gap: 18px; margin-bottom: 18px; }
+.panel { padding: 18px 22px; margin-bottom: 18px; }
+.panel .take { background: transparent; border-top: 1px solid var(--line); border-radius: 0; padding: 10px 0 0; }
+.who li { background: none; color: var(--muted); padding: 0; border-radius: 0; }
+.who li + li::before { content: "·"; margin-right: 6px; color: var(--muted); }
+details.more { margin: -6px 0 12px; font-size: 0.82rem; color: var(--muted); }
+details.more summary { cursor: pointer; color: var(--plum); font-weight: 600; }
+details.more p { margin: 6px 0 0; }
+
+/* Status that doesn't rely on colour: Off track is solid, Watch is tinted, On track is an outline. */
+.status.on { background: transparent; box-shadow: inset 0 0 0 1.5px var(--ok); }
+.status.off { background: var(--bad); color: var(--bad-ink); }

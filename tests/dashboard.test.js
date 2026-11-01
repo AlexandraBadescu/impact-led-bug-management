@@ -73,6 +73,37 @@ for (const scheme of SCHEMES) {
   }
 }
 
+// Variant B (sage and forest, ?palette=sage) gets the same automated checks at a phone and a desktop width.
+// Automated checks cover text contrast they can compute; colour-blind separation and the charts still need a person.
+for (const scheme of SCHEMES) {
+  for (const width of [390, 1280]) {
+    test(`sage variant: all views, ${width}px, ${scheme}: no errors, no sideways scrolling, no automated axe WCAG A/AA violations`, async () => {
+      for (const view of VIEWS) {
+        const page = await browser.newPage({ viewport: { width, height: 900 }, colorScheme: scheme });
+        const errors = [];
+        page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
+        await page.goto(URL.replace('index.html', 'index.html?palette=sage') + '#' + view);
+        await page.waitForSelector('#view > *');
+        assert.equal(await page.getAttribute('html', 'data-palette'), 'sage');
+        await page.$$eval('details', (ds) => ds.forEach((d) => { d.open = true; }));
+        assert.ok(await overflow(page) <= 0, `${view}: sideways scrolling`);
+        assert.deepEqual(await axe(page), [], `${view}: accessibility violations`);
+        assert.deepEqual(errors, [], `${view}: errors`);
+        await page.close();
+      }
+    });
+  }
+}
+
+test('help text: one sentence at a glance, the rest under "More about this panel"', async () => {
+  const { page } = await open(1280, 'week');
+  const helps = await page.$$eval('#view .panel .help', (ps) => ps.map((p) => p.textContent.trim()));
+  assert.ok(helps.length > 0);
+  assert.ok(helps.every((t) => (t.match(/[.?!](\s|$)/g) || []).length <= 1), 'each visible help line is one sentence');
+  assert.ok(await page.locator('details.more').count() > 0, 'the rest is still there, one click away');
+  await page.close();
+});
+
 test('text spacing (WCAG 1.4.12): no sideways scrolling with wider spacing on a 320px screen', async () => {
   for (const view of VIEWS) {
     const { page } = await open(320, view);

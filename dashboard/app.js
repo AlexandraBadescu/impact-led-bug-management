@@ -136,7 +136,18 @@
   const idCell = (s) => `<button type="button" class="idbtn" data-id="${esc(s.id)}" aria-haspopup="dialog">${esc(s.id)}</button><span class="title">${esc(s.title)}</span>`;
 
   // Scrollable tables must be reachable by keyboard (WCAG 2.1.1), so each wrapper is a labelled, focusable region.
+  // Help text: the first sentence stays visible; the rest is one click away, under "More about this panel".
+  // Less to read at a glance, nothing removed. A help paragraph that is one sentence stays as it is.
+  function trimHelp(html) {
+    return html.replace(/<p class="help">([\s\S]*?)<\/p>/g, (m, text) => {
+      const cut = text.search(/[.?!] (?=[A-Z"(])(?![^<]*<\/(code|a|strong|em)>)/);
+      if (cut < 0) return m;
+      return `<p class="help">${text.slice(0, cut + 1)}</p><details class="more"><summary>More about this panel</summary><p>${text.slice(cut + 2)}</p></details>`;
+    });
+  }
+
   function regions(html) {
+    html = trimHelp(html);
     return html.replace(/<div class="table-wrap"><table([^>]*)>\s*<caption([^>]*)>([^<]*)<\/caption>/g,
       (m, attrs, capAttrs, cap) => `<div class="table-wrap" role="region" tabindex="0" aria-label="${cap}"><table${attrs}><caption${capAttrs}>${cap}</caption>`);
   }
@@ -664,6 +675,9 @@
     $('view').querySelectorAll('[data-h]').forEach((el) => { el.style.height = el.dataset.h + 'px'; });
   }
   function fromHash() { const h = location.hash.slice(1); state.view = VIEWS[h] ? h : 'today'; render(); }
+
+  // Visual variant: ?palette=sage shows variant B (sage and forest); anything else is A (refined aubergine).
+  if (new URLSearchParams(location.search).get('palette') === 'sage') document.documentElement.dataset.palette = 'sage';
 
   const teams = [...new Set(DATA.issues.map((i) => i.team))].sort();
   $('team').insertAdjacentHTML('beforeend', teams.map((t) => `<option>${esc(t)}</option>`).join(''));
