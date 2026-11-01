@@ -24,7 +24,7 @@ None of these have been done yet. Each says what to check and what passing looks
 
 | Check | How | Pass when | Status |
 |---|---|---|---|
-| VoiceOver on macOS Safari, and on iPhone | Navigate each view by headings, then by tables; open a bug's history | Headings describe each panel; tiles read as title, number, explanation; tables announce headers; the dialog announces its title | Not tested |
+| VoiceOver on macOS Safari, and on iPhone | Navigate each view by headings, then by tables; open a bug's history | Headings describe each panel; tiles read as title, number, explanation; tables announce headers; the dialog announces its title | Issues found, to fix in a future iteration (see below) |
 | Keyboard only, whole journey | Unplug the mouse: change each filter, switch views, open and close three bug histories, open "How it's counted" notes | Everything reachable, in a sensible order, with no traps | Not tested (partly covered by the automated focus test) |
 | Focus order and visibility | Tab through each view at 1280px and 390px | The order follows the layout; the indicator is visible on every background, in light and dark mode | Not tested by a person |
 | Dialog focus | Open a bug history, Tab repeatedly, then Shift+Tab | Focus stays in the dialog until it's closed, then returns to the bug ID | Partly verified (return of focus is automated) |
@@ -35,6 +35,17 @@ None of these have been done yet. Each says what to check and what passing looks
 | Charts without sight | With VoiceOver, read each chart's text alternative and table | The numbers and the point of the chart come across without the picture | Not tested |
 
 When these are done, record the date, browser and version, and what was found, here.
+
+## Results so far
+
+**1 November 2026: VoiceOver on macOS, standalone preview of the dashboard branch.** A first pass found that some text isn't fully or clearly read: parts of the page run together and not all content is identified. These will be addressed in a future iteration. The likely causes, from inspecting the accessibility tree:
+
+- The whole view is a live region, so it may be re-announced on load and after every filter change.
+- Each tile's number is read as a separate bare paragraph, not tied to its heading.
+- Short labels with no separator between them run together, for example "P0 Very high" or "P0 emergency Urgent".
+- Decorative separators are read out, as in "·Developers".
+
+Until then, this check stays failed, not passed.
 
 ---
 
