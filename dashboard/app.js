@@ -194,7 +194,7 @@
     </div>
     <section class="panel">
       <h2>The action list</h2>
-      ${help(`${plural(t.queue.length, 'bug')} need something, most urgent first.`, `${plural(t.queue.length, 'bug')} need something, in the order developers pick up work: P0 emergencies first, then bugs not yet triaged (they could be emergencies), then agreed P1 work, then decisions that are due. Select a bug ID to see its history.`)}
+      ${help(`${plural(t.queue.length, 'bug')} need something, most urgent first.`, `The order is the one developers pick up work in: P0 emergencies first, then bugs not yet triaged (they could be emergencies), then agreed P1 work, then decisions that are due. Select a bug ID to see its history.`)}
       <div class="table-wrap"><table class="stack" id="action-table">
         <caption class="sr">Bugs that need action, with the reason and the next step</caption>
         <thead><tr><th scope="col">Bug</th><th scope="col">Team · assignee</th><th scope="col">Priority · impact</th><th scope="col" class="n hide-sm">Age</th><th scope="col">Why it's here</th><th scope="col">Next step</th></tr></thead>
@@ -206,13 +206,13 @@
     <div class="grid2">
       <section class="panel">
         <h2>What state are open bugs in?</h2>
-        ${help(`Where each open bug is in its life.`, `Every open bug by where it is in its life. A big "New" slice means triage is behind; a big "Deferred" slice is fine as long as the reviews are up to date.`)}
+        ${help(`Where each open bug is in its life.`, `A big "New" slice means triage is behind; a big "Deferred" slice is fine as long as the reviews are up to date.`)}
         ${donut({ parts: statuses, label: 'Open bugs by status' })}
         ${tableView('Open bugs by status', ['Status', 'Bugs'], statuses.map((p) => [p.label, p.count]))}
       </section>
       <section class="panel">
         <h2>How serious are open bugs?</h2>
-        ${help(`How serious the open bugs are.`, `Open bugs by impact. Bugs not yet scored are shown on their own, never counted as Low.`)}
+        ${help(`How serious the open bugs are.`, `Bugs not yet scored are shown on their own, never counted as Low.`)}
         ${bars(impacts.map((x) => ({ label: x.label, count: x.count, cls: x.cls })))}
         ${tableView('Open bugs by impact', ['Impact', 'Bugs'], impacts.map((x) => [x.label, x.count]))}
       </section>
@@ -220,13 +220,13 @@
     <div class="grid2">
       <section class="panel">
         <h2>Can we reproduce them?</h2>
-        ${help(`Whether the team could reproduce each open bug.`, `Open bugs by whether the team could reproduce them, from the Jira labels <code>reproducible</code> and <code>not-reproducible</code>. A bug nobody can reproduce can't be fixed with confidence: pair with the reporter, or add logging.`)}
+        ${help(`Whether the team could reproduce each open bug.`, `From the Jira labels <code>reproducible</code> and <code>not-reproducible</code>. A bug nobody can reproduce can't be fixed with confidence: pair with the reporter, or add logging.`)}
         ${bars(t.repro.map((x, i) => ({ label: x.label, count: x.count, cls: ['c2', 'c4', 's-u'][i] })))}
         ${tableView('Open bugs by reproducibility', ['Reproducible?', 'Bugs'], t.repro.map((x) => [x.label, x.count]))}
       </section>
       <section class="panel">
         <h2>Has the team reviewed them?</h2>
-        ${help(`Whether the team has looked at each open bug recently.`, `Open bugs by team review, from the Jira label <code>bug-reviewed</code>, added at triage. When a bug's review date passes it's due for review again, so "reviewed" never goes stale.`)}
+        ${help(`Whether the team has looked at each open bug recently.`, `From the Jira label <code>bug-reviewed</code>, added at triage. When a bug's review date passes it's due for review again, so "reviewed" never goes stale.`)}
         ${bars(t.reviewed.map((x, i) => ({ label: x.label, count: x.count, cls: ['c2', 'c3', 's-u'][i] })))}
         ${tableView('Open bugs by team review', ['Reviewed?', 'Bugs'], t.reviewed.map((x) => [x.label, x.count]))}
       </section>
@@ -234,7 +234,7 @@
     <div class="grid2">
       <section class="panel">
         <h2>Is any team taking on too much?</h2>
-        ${help(`Urgent bugs being worked on now, per team, against a limit of ${P.urgentInProgressLimit}.`, `Urgent bugs being worked on right now (In progress or Verification). Suggested limit: ${P.urgentInProgressLimit} per team, so work gets finished before more starts.`)}
+        ${help(`Urgent bugs being worked on now, per team, against a limit of ${P.urgentInProgressLimit}.`, `Counts urgent bugs in progress or in verification. Suggested limit: ${P.urgentInProgressLimit} per team, so work gets finished before more starts.`)}
         ${bars(t.wip.map((w) => ({ label: w.team, count: w.count, text: `${w.count} / ${w.limit}`, over: w.count > w.limit })), P.urgentInProgressLimit)}
       </section>
       <section class="panel">
@@ -268,7 +268,7 @@
     <div class="grid2">
       <section class="panel">
         <h2>Bug trends</h2>
-        ${help(`New, fixed and reopened bugs each week.`, `New, fixed and reopened bugs per week, over the last 12 weeks. More coming in than going out for three weeks or more is worth raising at the monthly review.`)}
+        ${help(`New, fixed and reopened bugs each week.`, `More coming in than going out for three weeks or more is worth raising at the monthly review.`)}
         ${lineChart({ labels: w12.map((x) => x.end), series: [{ name: 'New', cls: 'c1', values: w12.map((x) => x.created) }, { name: 'Fixed', cls: 'c2', values: w12.map((x) => x.fixed) }, { name: 'Reopened', cls: 'c3', values: w12.map((x) => x.reopened) }], label: 'Bug trends' })}
         ${tableView('Bugs per week', ['Week ending', 'New', 'Fixed', 'Reopened', 'Closed, no fix'], w12.map((x) => [short(x.end), x.created, x.fixed, x.reopened, x.other]))}
       </section>
@@ -284,13 +284,13 @@
     <div class="grid2">
       <section class="panel">
         <h2>Where are more bugs coming in than going out?</h2>
-        ${help(`New against fixed bugs per team, last 28 days.`, `New and fixed bugs per team over the last 28 days. More coming in than going out for a few weeks is a signal to look at support or capacity together, not a judgement on the team.`)}
+        ${help(`New against fixed bugs per team, last 28 days.`, `More coming in than going out for a few weeks is a signal to look at support or capacity together, not a judgement on the team.`)}
         ${pairedBars({ rows: flow.map((f) => ({ label: f.team, created: f.created, fixed: f.fixed })), a: { key: 'created', name: 'New' }, b: { key: 'fixed', name: 'Fixed' } })}
         ${tableView('New and fixed per team, last 28 days', ['Team', 'New', 'Fixed', 'Reopened', 'Closed, no fix'], flow.map((f) => [f.team, f.created, f.fixed, f.reopened, f.other]))}
       </section>
       <section class="panel">
         <h2>Where are bugs caught? <span class="optional">Optional</span></h2>
-        ${help(`How bugs were found, and how many reached production.`, `Bugs raised in the last 90 days, by how they were found. Optional: it needs "Found in" and "Found by" recorded on each bug. Worth it if you want to show where test automation would pay off; skip it if it's extra effort for your team.`)}
+        ${help(`How bugs were found, and how many reached production.`, `Covers bugs raised in the last 90 days. Optional: it needs "Found in" and "Found by" recorded on each bug. Worth it if you want to show where test automation would pay off; skip it if it's extra effort for your team.`)}
         ${bars([{ label: 'Before release', count: w.caught.before }, { label: 'In production', count: w.caught.production }])}
         <h3 class="sr">Found by</h3>
         <div class="gap-top">${bars(w.foundBy.map((x) => ({ label: x.label, count: x.count })))}</div>
@@ -300,24 +300,24 @@
     <div class="grid2">
       <section class="panel">
         <h2>What causes them?</h2>
-        ${help(`What caused the urgent and reopened bugs we fixed.`, `Causes of fixed High and Very high bugs, and anything reopened, in the last 90 days. Cause labels are optional; the monthly prevention review agrees the cause for any without one.`)}
+        ${help(`What caused the urgent and reopened bugs we fixed.`, `Covers fixed High and Very high bugs, and anything reopened, in the last 90 days. Cause labels are optional; the monthly prevention review agrees the cause for any without one.`)}
         ${bars(w.rootCauses.map((x) => ({ label: x.label, count: x.count })))}
       </section>
       <section class="panel">
         <h2>What did we add so they don't come back?</h2>
-        ${help(`The test or check added with each fix.`, `The test or check that came with each fix, from its linked pull request. A fix without one is a bug waiting to return.`)}
+        ${help(`The test or check added with each fix.`, `Taken from each fix's linked pull request. A fix without one is a bug waiting to return.`)}
         <ul>${w.prevention.slice(0, 8).map((p) => `<li><strong>${esc(p.id)}</strong>${p.rootCause ? ` (${esc(p.rootCause)})` : ''}: ${esc(p.prevention)}</li>`).join('') || '<li>Nothing in this period.</li>'}</ul>
       </section>
     </div>
     <div class="grid2">
       <section class="panel">
         <h2>How old are open bugs?</h2>
-        ${help(`How old the open bugs are, by impact.`, `Open bugs by age and impact. A plan is needed by day 30 for High and Very high, day 90 for Medium and day 180 for Low (flagged from the day after), so Very high and High bugs in the older rows need attention first.`)}
+        ${help(`How old the open bugs are, by impact.`, `A plan is needed by day 30 for High and Very high, day 90 for Medium and day 180 for Low (flagged from the day after), so Very high and High bugs in the older rows need attention first.`)}
         ${stacked(ages, 'Open bugs by age and impact', 'Age')}
       </section>
       <section class="panel">
         <h2>Where are the hotspots?</h2>
-        ${help(`The product areas carrying the most open risk.`, `Open bugs by product area and impact, highest weighted exposure first. An area at the top is a candidate for a focused fix-up or tech debt work.`)}
+        ${help(`The product areas carrying the most open risk.`, `Sorted by weighted exposure, highest first. An area at the top is a candidate for a focused fix-up or tech debt work.`)}
         ${stacked(hot, 'Open bugs by area and impact', 'Team · area')}
       </section>
     </div>
@@ -373,13 +373,13 @@
     return `<div class="grid2">
       <section class="panel">
         <h2>Is weighted exposure going down?</h2>
-        ${help(`Whether open risk is building up, week by week.`, `The weighted exposure of all open bugs at the end of each week: each open bug adds 8 for Very high, 4 for High, 2 for Medium and 1 for Low. The weights are a ranking convention that lets one serious bug outweigh a few small ones; they don't measure money or customers. Bugs not yet scored are listed under the bars rather than counted as zero.`)}
+        ${help(`Whether open risk is building up, week by week.`, `Measured at the end of each week: each open bug adds 8 for Very high, 4 for High, 2 for Medium and 1 for Low. The weights are a ranking convention that lets one serious bug outweigh a few small ones; they don't measure money or customers. Bugs not yet scored are listed under the bars rather than counted as zero.`)}
         <ul class="cols" aria-label="Weighted exposure of open bugs by week">${cols}</ul>
         <p class="take">${take}</p>
       </section>
       <section class="panel">
         <h2>How are open bugs spread across teams?</h2>
-        ${help(`Open bugs by team and impact.`, `Open bugs by team and impact, with each team's weighted exposure in brackets. The counts matter as much as the total: select "Show as a table" for exact numbers.`)}
+        ${help(`Open bugs by team and impact.`, `The counts matter as much as the total: select "Show as a table" for exact numbers.`)}
         ${stacked(byTeam, 'Open bugs by team and impact', 'Team')}
       </section>
     </div>`;
@@ -432,7 +432,7 @@
     const advice = ai.status === 'Watch' ? 'At the limit: run the drafting skill against the known-answer cases before the next batch.' : ai.status === 'Pause AI drafting' ? 'Pause drafting and fix the prompt.' : '';
     return `<section class="panel">
       <h2>Is AI helping?</h2>
-      ${help(`Whether AI finds real bugs, and drafts tickets people accept.`, `Bugs raised in the last 90 days, from the labels <code>found-with-ai</code> (an AI tool helped find it) and <code>ai-drafted</code> (an AI tool drafted the ticket and a person checked it). These are learning numbers for the team, never a comparison of people.`)}
+      ${help(`Whether AI finds real bugs, and drafts tickets people accept.`, `Covers bugs raised in the last 90 days, from the labels <code>found-with-ai</code> (an AI tool helped find it) and <code>ai-drafted</code> (an AI tool drafted the ticket and a person checked it). These are learning numbers for the team, never a comparison of people.`)}
       <div class="grid2 flat">
         <div>
           <h3 class="sub-h">Bugs found with AI</h3>
@@ -486,7 +486,7 @@
     });
     return `<section class="panel">
       <h2>What share of completed tickets were bugs or tech debt?${filtered ? ' <span class="optional">All teams</span>' : ''}</h2>
-      ${help(`How much of the work went on bugs and tech debt, against the plan.`, `Each month's share of completed tickets that were bugs or tech debt, against the share planned. Counted from Jira (tickets resolved in the month, by type), so no time tracking is needed. It counts tickets, not effort: a one-line fix and a two-week investigation both count as one, so read it as a signal, not a measure of time spent. A month appears once its report exists; the current month is shown to date.${filtered ? ' This panel covers all teams and doesn\'t follow the filters.' : ''}`)}
+      ${help(`How much of the work went on bugs and tech debt, against the plan.`, `Counted from Jira (tickets resolved in the month, by type), so no time tracking is needed. It counts tickets, not effort: a one-line fix and a two-week investigation both count as one, so read it as a signal, not a measure of time spent. A month appears once its report exists; the current month is shown to date.${filtered ? ' This panel covers all teams and doesn\'t follow the filters.' : ''}`)}
       ${rows.length ? bars(rows, 25) : '<p>No monthly report yet on this date.</p>'}
     </section>`;
   }

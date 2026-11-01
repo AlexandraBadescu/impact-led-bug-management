@@ -128,6 +128,28 @@ test('the action list stays right when the team or date changes, collapsed or ex
   await page.close();
 });
 
+test('on phones, where the sidebar notes are hidden, the footer still says who designed it and links to the one-page version', async () => {
+  const { page } = await open(390, 'today');
+  assert.equal(await page.isVisible('.byline'), false, 'the sidebar byline is hidden on phones');
+  const credit = page.locator('footer .credit');
+  assert.ok(await credit.isVisible());
+  assert.match(await credit.textContent(), /Designed by Alexandra Badescu[\s\S]*fictional[\s\S]*one-page version/);
+  await page.close();
+});
+
+test('each expanded explanation adds to its summary instead of repeating it', async () => {
+  const { page } = await open(1280, 'week');
+  const words = (t) => new Set(t.toLowerCase().match(/[a-z]+/g).filter((w) => w.length > 3));
+  const pairs = await page.$$eval('#view .panel', (ps) => ps.filter((p) => p.querySelector(':scope > .help + details.more'))
+    .map((p) => [p.querySelector('.help').textContent, p.querySelector('details.more p').textContent.split(/(?<=[.?!])\s/)[0]]));
+  assert.ok(pairs.length > 0);
+  for (const [summary, first] of pairs) {
+    const a = words(summary), b = words(first), shared = [...a].filter((w) => b.has(w)).length;
+    assert.ok(shared / Math.max(1, Math.min(a.size, b.size)) < 0.7, `"${first}" repeats "${summary}"`);
+  }
+  await page.close();
+});
+
 test('the sidebar says who designed it, that the data is fictional, and links to the one-page version', async () => {
   const { page } = await open(1280, 'today');
   const by = await page.textContent('.byline');
