@@ -94,7 +94,49 @@ test('the action list starts with the 5 most urgent bugs; the rest are one keybo
   await phone.page.close();
 });
 
-test('help text: one sentence at a glance, the rest under "More about this panel"', async () => {
+test('the three things that make the dashboard credible are visible without opening anything', async () => {
+  for (const width of [1280, 390]) {
+    const { page } = await open(width, 'month');
+    const late = page.locator('.goal .alongside.late');
+    assert.ok(await late.isVisible(), `${width}px: overdue urgent bugs beside the on-time rate`);
+    assert.match(await late.textContent(), /BUG-109, BUG-110, BUG-140, BUG-148/);
+    assert.ok(await page.locator('.summary .fiction').isVisible(), `${width}px: why the fictional data is red`);
+    assert.ok(await page.locator('.summary h3:has-text("What needs a decision?")').isVisible(), `${width}px: the decisions summary`);
+    assert.ok(await page.locator('.summary li:has-text("BUG-148")').first().isVisible());
+    await page.close();
+  }
+});
+
+test('the action list stays right when the team or date changes, collapsed or expanded', async () => {
+  const { page, errors } = await open(1280, 'today');
+  const shown = () => page.$$eval('#action-table tbody tr', (rs) => rs.filter((r) => !r.hidden).length);
+  await page.click('#toggle-actions');
+  assert.equal(await shown(), 17);
+  await page.selectOption('#team', 'Orders & Delivery');
+  const total = await page.$$eval('#action-table tbody tr', (rs) => rs.length);
+  assert.ok(total < 17 && total > 0, 'filtered to one team');
+  assert.equal(await shown(), total, 'still expanded, showing every row for that team');
+  await page.click('#toggle-actions');
+  assert.equal(await shown(), Math.min(5, total));
+  await page.selectOption('#team', '');
+  await page.fill('#asof', '2026-08-01');
+  await page.dispatchEvent('#asof', 'change');
+  const past = await page.$$eval('#action-table tbody tr', (rs) => rs.length);
+  assert.notEqual(past, 17, 'an earlier date has a different list');
+  if (past > 5) assert.match(await page.textContent('#toggle-actions'), new RegExp(`Show all ${past} bugs`));
+  assert.deepEqual(errors, []);
+  await page.close();
+});
+
+test('the sidebar says who designed it, that the data is fictional, and links to the one-page version', async () => {
+  const { page } = await open(1280, 'today');
+  const by = await page.textContent('.byline');
+  assert.match(by, /Designed by Alexandra Badescu[\s\S]*fictional/);
+  assert.equal(await page.getAttribute('.byline a:has-text("one-page version")', 'href'), 'https://github.com/AlexandraBadescu/impact-led-bug-management/blob/main/docs/minimum-viable-approach.md');
+  await page.close();
+});
+
+test('help text: a short written summary at a glance, the full explanation under "More about this panel"', async () => {
   const { page } = await open(1280, 'week');
   const helps = await page.$$eval('#view .panel .help', (ps) => ps.map((p) => p.textContent.trim()));
   assert.ok(helps.length > 0);

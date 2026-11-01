@@ -24,7 +24,7 @@
   --heat1: #eef3ee; --heat2: #dae6db; --heat3: #bcd2c0;
   --c1: #243c30; --c2: #af8b3d; --c3: #a64d3b; --c4: #466188; --c5: #a578c2; /* categorical: checked by tools/check-palette.js */
   --seq-l: #c6d8c9; --seq-m: #8db098; --seq-h: #4d7a5d; --seq-vh: #22402f; /* ordinal ramp: checked by tools/check-palette.js */
-  --side-bg: #e6ede6; --side-ink: #1f2e25; --side-muted: #45534a; --side-line: #b9c8bc; --side-active: #fffdf9; --side-marker: #a34e48;
+  --side-bg: #e6ede6; --side-ink: #1f2e25; --side-muted: #45534a; --side-line: #b9c8bc; --side-soft-line: #cfdbd1; --side-active: #fffdf9; --side-marker: #a34e48;
   --focus: #1b5fd6;
   --radius: 12px;
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -56,7 +56,7 @@
     --heat1: #213028; --heat2: #2f4638; --heat3: #42614d;
     --c1: #8ed8b4; --c2: #daa664; --c3: #bd6265; --c4: #3f7cc4; --c5: #c9b2d9; /* categorical, dark */
     --seq-l: #3b5446; --seq-m: #6f9a7c; --seq-h: #a8cdb2; --seq-vh: #e2efe4; /* ordinal ramp, dark: stronger = brighter */
-    --side-bg: #18211b; --side-ink: #eef1ea; --side-muted: #b9c4bb; --side-line: #3f5045; --side-active: #212d26; --side-marker: #e8a59c;
+    --side-bg: #18211b; --side-ink: #eef1ea; --side-muted: #b9c4bb; --side-line: #3f5045; --side-soft-line: #33433a; --side-active: #212d26; --side-marker: #e8a59c;
     --focus: #8fb4ff;
   }
 }
@@ -79,19 +79,17 @@ main:focus { outline: none; }
 .nav { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
 .nav li { display: flex; }
 .nav li a { flex: 1; }
-/* Every view keeps an outline and an arrow, so the options read as choices (1.0 test report, B6). */
-.nav a { display: flex; flex-direction: column; justify-content: center; position: relative; padding: 10px 30px 10px 12px; border-radius: 10px; color: var(--side-ink); text-decoration: none;
-  background: transparent; border: 1px solid var(--side-line); }
-.nav a::after { content: "›"; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 1.3rem; color: var(--side-muted); }
+/* Every view keeps a light outline, so the options still read as choices (1.0 test report, B6), without arrows. */
+.nav a { display: flex; flex-direction: column; justify-content: center; position: relative; padding: 9px 12px; border-radius: 10px; color: var(--side-ink); text-decoration: none;
+  background: transparent; border: 1px solid var(--side-soft-line); }
 .nav a small { display: block; color: var(--side-muted); font-size: 0.78rem; }
 .nav a:hover { background: var(--side-active); border-color: var(--side-marker); }
 .nav a[aria-current="page"] { background: var(--side-active); border-color: var(--side-marker); color: var(--side-ink); font-weight: 700; box-shadow: inset 4px 0 0 var(--side-marker); }
 .nav a[aria-current="page"] small { color: var(--side-muted); font-weight: 400; }
-.nav a[aria-current="page"]::after { content: "●"; font-size: 0.6rem; color: var(--side-marker); }
 .note { margin-top: 22px; border: 1px solid var(--side-line); border-radius: 10px; padding: 12px; font-size: 0.82rem; color: var(--side-muted); }
 .note strong { display: block; color: var(--side-ink); margin-bottom: 2px; }
 .byline { margin-top: 18px; font-size: 0.82rem; color: var(--side-muted); }
-.byline a { color: var(--side-ink); }
+.byline a { color: var(--side-ink); display: inline-block; margin-top: 6px; }
 
 main { padding: 28px clamp(16px, 3vw, 36px) 40px; min-width: 0; }
 .eyebrow { margin: 0; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
