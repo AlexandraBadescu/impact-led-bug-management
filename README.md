@@ -6,30 +6,44 @@ So I changed the conversation. Instead of counting bugs, we looked at which ones
 
 **The squad went from the oldest bug backlog in Engineering to the fewest open bugs of any squad, with an average bug age a quarter of the next-best squad's.** That's the real result, from a previous role. [Where this comes from](docs/background.md) has the rest of the story, and its limits.
 
+### Explore the project
+
+**[Explore the live Bug Decisions dashboard](https://alexandrabadescu.github.io/impact-led-bug-management/dashboard/)** · [Start with the one-page approach](docs/minimum-viable-approach.md) · [See the test evidence](docs/test-report.md)
+
 ## What this repo is
 
-This repo is that experience, rewritten from scratch and taken further: a playbook, a scoring guide, a Jira setup, and a **[demo dashboard](https://alexandrabadescu.github.io/impact-led-bug-management/dashboard/)** running on fictional data for MaxQ Ltd, a made-up company with an online shop, its own payments service and an identity-check service. The data deliberately includes overdue urgent bugs, a deferral nobody explained and a go-live promise that was missed, because the point of the dashboard is to make those visible, not to look green.
+This project takes that real experience, rewrites it from scratch and develops it further into a practical bug management framework.
 
-It's deliberately comprehensive, and I wouldn't drop all of it onto a team on Monday morning and hope everyone thanked me. Start with the **[one-page minimum version](docs/minimum-viable-approach.md)**.
+It includes a playbook, impact scoring, Jira configuration guidance, automated checks, AI evaluation examples and an interactive dashboard using fictional data for MaxQ Ltd.
+
+The fictional dataset deliberately includes overdue bugs, missed targets and decisions that still need attention. The dashboard isn't supposed to look reassuring when the underlying situation isn't.
+
+And while the framework is comprehensive, I wouldn't drop all of it onto a team on Monday morning and expect everyone to thank me. That's why there's a [minimum viable approach](docs/minimum-viable-approach.md) for teams that want to start small.
 
 ## Three things it demonstrates
 
-1. **Bugs as product risk, not ticket counts.** Impact (harm to users) is kept apart from priority (when we fix it), and the score informs the decision rather than making it. The [worked prioritisation](docs/scoring-guide.md#using-the-score-a-worked-prioritisation) and the [worked disagreement](docs/role-guides.md#a-disagreement-worked-through) show the judgement part.
-2. **Decisions that are visible and owned.** Every deferral needs a reason and a date, accepted risks stay visible, and a go-live with a known urgent bug records who was accountable and what was promised. Whether the promise was kept is read from the bug's own history.
-3. **Numbers that can't quietly mislead.** I reviewed my own first version and found it telling a kinder story than its data: a 92% "On track" with four urgent bugs overdue, sign-offs dated before their bugs existed. The [test report](docs/test-report.md) says what I found and fixed, and which claims are still unproven.
+1. **Bugs are about product risk, not ticket counts.** Impact describes the potential harm; priority describes when we should act. The scoring helps inform decisions, but it doesn't replace judgement. See the [worked prioritisation](docs/scoring-guide.md#using-the-score-a-worked-prioritisation).
 
-## What it isn't
+2. **A decision needs an owner, not just a meeting.** Deferrals need reasons and review dates, accepted risks remain visible, and go-live decisions record who accepted what. Escalating an issue isn't the same as resolving it.
 
-The demo is fictional, so it shows how the approach works, not that an organisation improved: that evidence is the real result above. The Jira setup is documented, not installed. The AI evaluation cases have reference answers but haven't been run against a model. Automated accessibility checks pass, but the manual ones are still to do. The [publication gate](docs/test-report.md#publication-gate) lists each of these.
+3. **Good-looking metrics can still tell a misleading story.** When I reviewed the first version of this framework, I found that a 92% on-time result was sitting alongside four overdue urgent bugs. I also found contradictory sign-off dates. The [test report](docs/test-report.md) explains what I corrected, how I tested it and what remains unproven.
+
+## What this project doesn't claim
+
+The dashboard and its 59 bug records are fictional. They demonstrate how the framework behaves, not that a real organisation adopted it successfully.
+
+The Jira implementation is documented, not connected to a live Jira instance. The AI evaluation examples include known answers but haven't been evaluated against a live model. Automated accessibility checks do not establish complete WCAG conformance; manual checks remain outstanding.
+
+I'd rather make those limitations clear than pretend a green test suite proves more than it actually does.
 
 ## Where to go next
 
-- **Short on time:** the [demo dashboard](https://alexandrabadescu.github.io/impact-led-bug-management/dashboard/), then the [test report](docs/test-report.md).
-- **Thinking of trying it:** the [minimum version](docs/minimum-viable-approach.md), then the [rollout plan](docs/rollout-plan.md).
-- **Product, engineering or QA:** [how each role works with it](docs/role-guides.md), the [playbook](docs/playbook.md), the [scoring guide](docs/scoring-guide.md), the [dashboard guide](docs/dashboard-guide.md) and the [Jira setup](docs/jira-setup.md).
-- **Code and evidence:** the dashboard and its calculations in [`dashboard/`](dashboard), the data and draft checkers in [`tools/`](tools), the [AI skills](skills/README.md) and their [known-answer cases](evals/bug-drafts/README.md), and [`tests/`](tests).
+- **Just exploring?** Open the [live dashboard](https://alexandrabadescu.github.io/impact-led-bug-management/dashboard/) and browse the [test report](docs/test-report.md).
+- **Want something practical?** Read the [minimum viable approach](docs/minimum-viable-approach.md) and [rollout plan](docs/rollout-plan.md).
+- **Interested in the decisions?** Explore the [playbook](docs/playbook.md), [scoring guide](docs/scoring-guide.md) and [cross-functional scenarios](docs/role-guides.md).
+- **Want to challenge the engineering?** Review the [`dashboard/`](dashboard), [`tests/`](tests), [AI skills](skills/README.md) and [evaluation cases](evals/bug-drafts/README.md).
 
-By [Alexandra Badescu](https://alexandrabadescu.com), Senior QA Engineer and former Head of QA. A personal portfolio project: it doesn't describe any employer's process, and all data is fictional.
+By [Alexandra Badescu](https://alexandrabadescu.com), Senior QA Engineer and former Head of QA. This is a personal portfolio project, not a description of any employer's internal processes.
 
 ## Run it
 
